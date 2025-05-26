@@ -1,0 +1,1173 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Acme&display=swap');
+
+/* Placeholder for Berolina font. 
+   For this to work, you'd need to host the Berolina font files (woff2, woff, etc.) 
+   and update the src path accordingly, or have it installed as a system font. */
+@font-face {
+    font-family: 'Berolina';
+    src: local('Berolina'), /* Check for local installation first */
+         url('path-to-berolina.woff2') format('woff2'), /* Example: replace with actual path */
+         url('path-to-berolina.woff') format('woff');   /* Example: replace with actual path */
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+body {
+    font-family: 'Lora', serif; /* Default body text */
+    background-color: #f0e8d8;
+    color: #3a2d22;
+    margin: 0;
+    padding: 15px; 
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1600px; 
+    margin: 0 auto;
+    background-color: #fffdf5;
+    padding: 15px; 
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border: 1px solid #c5b8a5;
+    position: relative; 
+    padding-bottom: 60px; 
+}
+
+header {
+    margin-bottom: 10px; 
+    border-bottom: 2px solid #8c7d6b;
+    padding-bottom: 5px; 
+}
+
+.actions-dropdown-container {
+    position: relative;
+    display: inline-block; 
+    margin-bottom: 5px; /* Space between this and the line below */
+}
+
+.header-main-line {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+}
+
+
+#main-title { 
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 3.7em; /* Increased size */
+    color: #5a3e2b;
+    margin: 0; 
+    padding: 0; 
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-left: auto; /* Pushes it to the right */
+    text-align: right; /* Ensures text within the element is right-aligned */
+    flex-shrink: 0; 
+}
+
+.character-name-display-container {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0; 
+}
+
+#characterNameDisplay {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 3.5em; /* Match VAESEN title */
+    color: #5a3e2b; /* Match VAESEN title */
+    background-color: transparent; /* Blend with sheet */
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: text; /* Indicate it's clickable for editing */
+    display: inline-block; /* Default state */
+    min-height: 1.2em; /* Ensure it has some height even if empty for clickability */
+}
+
+#characterNameInput {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 3.5em; /* Match VAESEN title */
+    color: #5a3e2b; /* Match VAESEN title */
+    background-color: #f0e8d8; /* Slightly different to indicate edit mode */
+    border: 1px dashed #8c7d6b; /* Subtle border for edit mode */
+    padding: 0 5px; /* Minimal padding */
+    margin: 0;
+    width: auto; /* Adjust width as needed, or make it dynamic */
+    max-width: 400px; /* Example max width */
+    display: none; /* Hidden by default */
+}
+
+
+.actions-menu-button {
+    font-family: 'Acme', sans-serif;
+    background-color: #8c7d6b;
+    color: white;
+    padding: 10px 15px;
+    font-size: 0.9em; 
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 170px;
+}
+
+.actions-menu-button:hover {
+    background-color: #7a6d5b;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    /* left: 0; Changed from right:0 for left alignment */
+    background-color: #f9f4e8;
+    min-width: 170px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 4px;
+    border: 1px solid #c5b8a5;
+    padding: 8px 0; 
+}
+
+.dropdown-content .button-like-label,
+.dropdown-content button {
+    font-family: 'Acme', sans-serif;
+    color: #3a2d22;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: left;
+    box-sizing: border-box;
+    border: none;
+    background: none;
+    font-size: 0.85em;
+    cursor: pointer;
+}
+
+.dropdown-content .button-like-label:hover,
+.dropdown-content button:hover {
+    background-color: #f0e8d8;
+    color: #5a3e2b;
+}
+
+.dropdown-content .button-like-label {
+    margin-bottom: 0; 
+}
+.dropdown-content button {
+    margin-bottom: 0; 
+}
+
+.show {display: block;}
+
+.sheet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px; 
+}
+
+.card {
+    background-color: #f9f4e8;
+    padding: 8px; 
+    border-radius: 6px;
+    border: 1px solid #d9c9b5;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+.attributes.card { 
+    padding: 6px; 
+}
+.combat-gear-card.card { 
+    padding: 6px; 
+    display: flex; 
+    flex-direction: column;
+}
+
+.card h2 {
+    font-family: 'Acme', sans-serif;
+    font-size: 1.6em; 
+    color: #5a3e2b;
+    border-bottom: 1px solid #bcaea0;
+    padding-bottom: 3px; 
+    margin-top: 0;
+    margin-bottom: 6px; 
+    letter-spacing: 0.5px;
+}
+
+.card h3 {
+    font-family: 'Acme', sans-serif;
+    font-size: 1.1em; 
+    color: #5a3e2b;
+    margin-top: 6px; 
+    margin-bottom: 5px; 
+}
+.combat-gear-card.card h3 { 
+    font-size: 1.0em; 
+    margin-top: 5px; 
+    margin-bottom: 4px; 
+}
+.card-header-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px; 
+}
+.card-header-line label {
+    margin-bottom: 0; 
+    margin-right: auto; 
+}
+.card-header-line select {
+    flex-grow: 1;
+    margin-left: 6px; 
+    margin-right: 6px; 
+    margin-bottom: 0;
+}
+.card-header-line .header-buttons-group {
+    display: flex;
+    gap: 3px; 
+}
+.card-header-line .header-buttons-group button {
+    padding: 4px 7px; 
+    font-size: 0.7em; 
+    margin-bottom: 0; 
+}
+
+
+label {
+    display: block;
+    margin-bottom: 2px; 
+    font-weight: 600;
+    font-family: 'Berolina', 'Open Sans', sans-serif; 
+    color: #4a3d32;
+    font-size: 0.95em; 
+}
+.attributes label { 
+    font-size: 0.85em; 
+    margin-bottom: 1px; 
+}
+
+
+input[type="text"]:not(#characterNameInput),
+input[type="number"],
+select,
+textarea {
+    width: calc(100% - 14px); 
+    padding: 6px; 
+    margin-bottom: 5px; 
+    border: 1px solid #c5b8a5;
+    border-radius: 4px;
+    background-color: #fff;
+    font-family: 'Open Sans', sans-serif; 
+    font-size: 0.85em; 
+    box-sizing: border-box;
+}
+
+input[type="number"] {
+    width: 50px; 
+}
+.attributes input[type="number"] { 
+    font-size: 0.8em; 
+    padding: 4px; 
+    width: 40px; 
+}
+
+textarea {
+    resize: vertical;
+    min-height: 25px; 
+    font-family: 'Lora', serif; 
+}
+
+select {
+     width: 100%;
+}
+
+
+button, .button-like-label { 
+    font-family: 'Acme', sans-serif;
+    background-color: #8c7d6b;
+    color: white;
+    padding: 6px 9px; 
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85em; 
+    transition: background-color 0.3s ease;
+    margin-right: 3px; 
+    margin-bottom: 3px; 
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+button:hover, .button-like-label:hover {
+    background-color: #7a6d5b;
+}
+
+button.cancel-button {
+    background-color: #a09383;
+}
+button.cancel-button:hover {
+    background-color: #8c7d6b;
+}
+
+button.delete-button {
+    background-color: #a94442;
+    font-size: 0.7em; 
+    padding: 2px 6px; 
+}
+button.delete-button:hover {
+    background-color: #8a2e2c;
+}
+button.edit-button, button.action-button {
+    background-color: #5a8b8b; 
+    font-size: 0.7em; 
+    padding: 2px 6px; 
+}
+button.edit-button:hover, button.action-button:hover {
+    background-color: #4a7b7b;
+}
+button.action-button { 
+    background-color: #7a6d5b; /* A slightly different shade for "Use" */
+}
+button.action-button:hover {
+    background-color: #6a5d4b;
+}
+
+
+.attribute-item { 
+    display: flex;
+    align-items: center; 
+    margin-bottom: 3px; 
+    padding: 1px; 
+    border-bottom: 1px dashed #e0d8c8;
+}
+.attribute-item .roll-button {
+    margin-right: 5px; 
+    margin-left: 0;
+    flex-shrink: 0; 
+}
+.attribute-item label { 
+    font-family: 'Berolina', 'Open Sans', sans-serif;
+    font-size: 0.85em; 
+    margin-bottom: 0; 
+    flex-grow: 1; 
+    text-align: left;
+}
+.attribute-item input[type="number"] {
+    margin-left: auto; 
+    flex-shrink: 0; 
+}
+
+.attributes-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 8px; 
+}
+
+.attributes-column {
+    /* Styles for the left column (attributes + summary) */
+}
+.attributes-column h3 { 
+    margin-top: 0;
+}
+
+.conditions-column-wrapper {
+    /* Styles for the right column (conditions section) */
+}
+
+.conditions-section-within-attributes {
+    margin-top: 0; 
+    padding-top: 0; 
+    border-top: none; 
+}
+.conditions-section-within-attributes h3 {
+    font-size: 1.0em; 
+    margin-top: 0; 
+}
+
+
+.conditions-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px; 
+    margin-bottom: 4px; 
+}
+
+.condition-column {
+    flex: 1;
+}
+
+.condition-column h4 {
+    font-family: 'Acme', sans-serif; 
+    font-size: 0.85em; 
+    color: #5a3e2b;
+    margin-top: 0;
+    margin-bottom: 3px; 
+    border-bottom: 1px dashed #bcaea0;
+    padding-bottom: 1px; 
+}
+
+.condition-column div div { 
+    margin-bottom: 1px; 
+}
+
+.condition-column label, .broken-status label { 
+    display: inline-block;
+    margin-left: 3px; 
+    font-weight: normal; 
+    font-family: 'Open Sans', sans-serif; 
+    font-size: 0.8em; 
+}
+.condition-column input[type="checkbox"], .broken-status input[type="checkbox"] {
+    width: auto;
+    margin-right: 3px; 
+    vertical-align: middle; 
+}
+.broken-status {
+    margin-top: 4px; 
+    padding-top: 4px; 
+    border-top: 1px dotted #d9c9b5;
+}
+
+
+.conditions-explanation {
+    font-size: 0.7em; 
+    color: #4a3d32;
+    margin-top: 4px; 
+    padding: 2px; 
+    background-color: #fffdf5;
+    border: 1px dashed #e0d8c8;
+    border-radius: 4px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+
+.roll-button {
+    margin-left: 6px; 
+    padding: 3px 6px; 
+    font-size: 0.7em; 
+}
+
+
+.roll-log {
+    margin-top: 8px; 
+    padding: 6px; 
+    background-color: #fffdf5;
+    border: 1px solid #d9c9b5;
+    border-radius: 4px;
+    max-height: 130px; 
+    overflow-y: auto;
+    font-family: 'Open Sans', sans-serif; 
+    font-size: 0.8em; 
+}
+.roll-log h3 {
+    margin-top: 0;
+    font-family: 'Acme', sans-serif; 
+    font-size: 0.95em; 
+    color: #5a3e2b;
+}
+.roll-log p {
+    margin: 3px 0; 
+    border-bottom: 1px solid #e0d8c8;
+    padding-bottom: 3px; 
+    color: #3a2d22;
+}
+.roll-log p:last-child {
+    border-bottom: none;
+}
+
+.sub-section {
+    margin-bottom: 4px; 
+    padding: 3px; 
+    border: 1px solid #e0d8c8;
+    border-radius: 4px;
+    display: flex; 
+    flex-direction: column; 
+}
+.sub-section:last-child {
+    margin-bottom: 0;
+}
+.sub-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px; 
+}
+.sub-section-header h3 { 
+    font-family: 'Acme', sans-serif;
+    font-size: 0.95em; 
+    color: #5a3e2b;
+    margin: 0; 
+}
+.sub-section-header button {
+    padding: 2px 6px; 
+    font-size: 0.7em; 
+    margin-left: 6px; 
+    margin-bottom: 0; 
+}
+
+
+.talent-selection-group div {
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px; 
+}
+
+.talent-selection-group label {
+    margin-left: 3px; 
+    font-weight: normal;
+    font-family: 'Open Sans', sans-serif; 
+}
+.talent-selection-group input[type="checkbox"]{
+    width: auto;
+}
+
+.inline-field-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; 
+    gap: 5px; 
+    flex-wrap: wrap;
+}
+.inline-field-group label {
+    margin-bottom: 0; 
+    white-space: nowrap;
+    display: inline-block;
+}
+.inline-field-group select, 
+.inline-field-group input[type="number"].short-input {
+    width: auto; 
+    flex-grow: 1; 
+    font-family: 'Open Sans', sans-serif;
+}
+.inline-field-group input[type="number"].short-input {
+   width: 60px; 
+   flex-grow: 0;
+}
+
+.inline-field-group input[type="text"]:not(#characterNameInput),
+.inline-field-group textarea {
+    flex-grow: 1;
+    width: auto;
+    margin-bottom: 0;
+    font-family: 'Open Sans', sans-serif;
+}
+.inline-field-group textarea#advantages { 
+    font-family: 'Lora', serif;
+}
+
+
+.inline-field-group select#resources {
+    flex-grow: 0; 
+    min-width: 160px; 
+    width: auto; 
+}
+
+.resources-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 0.85em;
+}
+.resources-table th, .resources-table td {
+    border: 1px solid #d9c9b5;
+    padding: 5px;
+    text-align: left;
+    vertical-align: middle;
+}
+.resources-table th {
+    background-color: #f0e8d8;
+    font-weight: bold;
+    font-family: 'Acme', sans-serif;
+    color: #4a3d32;
+}
+.resources-table td select#resources {
+    width: 100%;
+    min-width: 150px;
+    font-size: 0.9em;
+    padding: 4px;
+}
+.resources-table td input[type="number"].short-input {
+    width: 50px;
+    padding: 4px;
+    font-size: 0.9em;
+    text-align: center;
+}
+.resources-table td button {
+    padding: 4px 8px;
+    font-size: 0.8em;
+}
+
+
+.checkbox-first-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; 
+}
+.checkbox-first-group.inline-field-group select { 
+    flex-grow: 1;
+    margin-left: 3px; 
+}
+
+
+.inline-checkbox-first {
+    width: auto !important; 
+    margin-right: 5px; 
+}
+.inline-label-checkbox-first {
+    font-family: 'Berolina', 'Open Sans', sans-serif !important; 
+    font-weight: normal !important;
+    margin-bottom: 0 !important;
+    display: inline-block !important;
+    cursor: pointer; 
+}
+.text-strikethrough {
+    text-decoration: line-through;
+    color: #888; 
+}
+
+
+
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+    background-color: #f9f4e8;
+    margin: 10% auto;
+    padding: 16px; 
+    border: 1px solid #8c7d6b;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.modal-content h3 { 
+    font-family: 'Acme', sans-serif;
+    margin-top: 0; 
+    margin-bottom: 6px; 
+}
+
+.modal-content div {
+    margin-bottom: 8px; 
+}
+.modal-content div:last-of-type { 
+    margin-bottom: 0; 
+}
+.modal-content label {
+    font-size: 0.85em; 
+}
+.modal-content input[type="text"],
+.modal-content input[type="password"],
+.modal-content input[type="number"].short-input, 
+.modal-content textarea,
+.modal-content select {
+    font-family: 'Open Sans', sans-serif; 
+    font-size: 0.8em; 
+    padding: 6px; 
+    width: 100%; 
+    box-sizing: border-box;
+}
+.modal-content input[type="number"].short-input { /* For GM/Gear Modifier in dice roll modal */
+    width: 60px !important; 
+    padding: 6px !important;
+    margin-bottom: 0 !important; 
+}
+
+#customRelationshipTypeContainer input[type="text"] {
+    margin-top: 3px; 
+}
+
+.modal-content button {
+    margin-top: 3px; 
+}
+
+
+.close-button {
+    color: #7a6d5b;
+    float: right;
+    font-size: 22px; 
+    font-weight: bold;
+    line-height: 1; 
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #3a2d22;
+    text-decoration: none;
+    cursor: pointer;
+}
+.talent-description-modal, .item-description-modal {
+    margin-top: 5px; 
+    margin-bottom: 8px; 
+    padding: 6px; 
+    background-color: #fffdf5;
+    border: 1px dashed #c5b8a5;
+    border-radius: 4px;
+    min-height: 25px; 
+    font-size: 0.8em; 
+    font-family: 'Open Sans', sans-serif; 
+}
+
+.talent-description-static {
+    margin-top: 2px; 
+    margin-bottom: 5px; 
+    padding: 6px; 
+    background-color: #fffdf5;
+    border: 1px dashed #c5b8a5;
+    border-radius: 4px;
+    min-height: 16px; 
+    font-size: 0.8em; 
+    color: #4a3d32; 
+    font-family: 'Open Sans', sans-serif; 
+}
+
+
+.skills-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 8px; 
+}
+
+.skills-table th, .skills-table td {
+    border: 1px solid #d9c9b5;
+    padding: 4px; 
+    text-align: left;
+    vertical-align: middle;
+    font-family: 'Open Sans', sans-serif; 
+}
+
+.skills-table th {
+    background-color: #f0e8d8;
+    font-weight: bold;
+    font-family: 'Acme', sans-serif; 
+    color: #4a3d32;
+    font-size: 0.8em; 
+}
+.skills-table tbody tr:nth-child(even) {
+    background-color: #f8f8f8; 
+}
+.skills-table tbody tr:nth-child(odd) {
+    background-color: #fffdf5; 
+}
+
+
+.skills-table td input[type="number"] {
+    width: 40px; 
+    padding: 3px; 
+    margin-bottom: 0; 
+    text-align: center;
+}
+
+.skills-table td .roll-button {
+    margin-left: 0; 
+    width: 100%; 
+    box-sizing: border-box;
+}
+
+.skills-table td.skill-name-cell {
+    font-weight: 600;
+    font-family: 'Lora', serif; 
+}
+.skills-table td.attribute-cell {
+    font-style: italic;
+    font-size: 0.8em; 
+}
+.skills-table td.condition-mod-cell, /* This cell now shows total modifiers */
+.skills-table td.dice-pool-cell {
+    text-align: center;
+    font-weight: bold;
+}
+
+#relationshipsListContainer {
+    margin-top: 5px; 
+    margin-bottom: 8px; 
+}
+
+.relationship-item {
+    background-color: #fffdf5;
+    border: 1px solid #e0d8c8;
+    border-radius: 4px;
+    padding: 6px; 
+    margin-bottom: 5px; 
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.relationship-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px; 
+}
+.relationship-pc-name {
+    margin: 0;
+    font-size: 0.85em; 
+    font-family: 'Open Sans', sans-serif;
+    flex-grow: 1; 
+}
+.relationship-pc-name strong {
+    color: #5a3e2b;
+    font-family: 'Acme', sans-serif;
+}
+.relationship-item-actions {
+    display: flex;
+    gap: 3px; 
+    flex-shrink: 0; 
+}
+.relationship-item-actions button {
+    margin: 0; 
+}
+
+.relationship-item p:not(.relationship-pc-name) { 
+    margin: 0;
+    font-size: 0.8em; 
+    line-height: 1.2;
+    font-family: 'Open Sans', sans-serif;
+    color: #7a6d5b; 
+}
+
+
+.item-list-container {
+    margin-top: 3px; 
+    margin-bottom: 5px; 
+    min-height: 40px; 
+    overflow-y: auto;
+    padding-right: 3px; 
+    flex-grow: 1; 
+}
+#armorListContainer {
+    min-height: 40px; 
+}
+
+
+.listed-item {
+    background-color: #fffdf5;
+    border: 1px solid #e0d8c8;
+    border-radius: 4px;
+    padding: 6px; 
+    margin-bottom: 5px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.listed-item-info {
+    flex-grow: 1;
+}
+.listed-item-info p {
+    margin: 0 0 2px 0; 
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.8em; 
+    line-height: 1.1; 
+}
+.listed-item-info p strong {
+    color: #5a3e2b;
+    font-family: 'Acme', sans-serif; 
+    font-size: 0.85em; 
+}
+.listed-item-info .item-details {
+    font-size: 0.75em; 
+    color: #7a6d5b;
+}
+.listed-item .actions {
+    display: flex;
+    flex-direction: column; 
+    align-items: flex-end; 
+    gap: 2px; 
+    margin-left: 6px;
+}
+
+.listed-item .actions button {
+    flex-shrink: 0;
+    margin-left: 0; 
+    font-size: 0.7em; 
+    padding: 2px 5px; 
+    width: 50px; 
+    text-align: center;
+}
+
+
+#notesListContainer {
+    margin-top: 5px; 
+}
+.note-item {
+    background-color: #fffdf5;
+    border: 1px solid #e0d8c8;
+    border-radius: 4px;
+    padding: 6px; 
+    margin-bottom: 5px; 
+}
+.note-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px; 
+}
+.note-title-input {
+    flex-grow: 1;
+    font-family: 'Acme', sans-serif;
+    font-size: 0.95em; 
+    color: #5a3e2b;
+    border: none;
+    border-bottom: 1px dashed #c5b8a5;
+    padding: 2px 0; 
+    margin-right: 6px; 
+    background-color: transparent;
+}
+.note-title-input:focus {
+    outline: none;
+    border-bottom: 1px solid #8c7d6b;
+}
+.note-title-input[readonly] {
+    background-color: #f8f8f8;
+    color: #555;
+    border-bottom-style: solid; 
+    cursor: default;
+}
+.note-content-textarea {
+    width: 100%;
+    font-family: 'Lora', serif;
+    font-size: 0.85em; 
+    min-height: 40px; 
+    margin-top: 0; 
+    margin-bottom: 0;
+}
+.note-content-textarea[readonly] {
+    background-color: #f8f8f8;
+    color: #555;
+    cursor: default;
+}
+
+.note-item-buttons {
+    display: flex;
+    gap: 3px; 
+    flex-shrink: 0;
+}
+.note-item-buttons button {
+    margin: 0; 
+}
+
+
+.webhook-info {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.75em; 
+    background-color: #fffdf5;
+    padding: 6px; 
+    border: 1px dashed #c5b8a5;
+    border-radius: 4px;
+    margin-bottom: 8px; 
+}
+.webhook-info p {
+    margin: 0 0 5px 0; 
+}
+.webhook-info ol {
+    margin-top: 3px; 
+    padding-left: 16px; 
+}
+.webhook-info li {
+    margin-bottom: 2px; 
+}
+
+.stacked-attributes-combat-gear-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+}
+
+.combat-gear-columns {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 8px; 
+    flex-grow: 1; 
+}
+
+.combat-gear-column {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; 
+}
+.combat-gear-column.equipment-column {
+    flex-grow: 1; 
+}
+.sub-section.equipment-sub-section {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+}
+
+
+footer {
+    text-align: center;
+    margin-top: 18px; 
+    padding-top: 8px; 
+    border-top: 1px solid #c5b8a5;
+    font-size: 0.7em; 
+    color: #7a6d5b;
+}
+footer p {
+    margin: 0;
+}
+
+/* Gain XP Modal Specific Styles */
+#xpQuestionsContainer {
+    max-height: 260px; 
+    overflow-y: auto;
+    padding-right: 6px; 
+    margin-bottom: 10px; 
+}
+.xp-question-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px; 
+    padding: 2px; 
+    border-bottom: 1px dashed #e0d8c8;
+}
+.xp-question-item:last-child {
+    border-bottom: none;
+}
+.xp-question-item input[type="checkbox"] {
+    width: auto;
+    margin-right: 6px; 
+    flex-shrink: 0;
+}
+.xp-question-item label {
+    font-weight: normal;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.8em; 
+    line-height: 1.2; 
+    margin-bottom: 0; 
+}
+
+.insights-defects .header-buttons-group button {
+    padding: 6px 9px; 
+    font-size: 0.8em; 
+}
+
+select optgroup {
+    font-weight: bold;
+    font-style: italic;
+    background-color: #e0d8c8; 
+    color: #3a2d22;
+}
+
+
+/* Dice Roll Modal Specific Styles */
+.dice-pool-calculation {
+    background-color: #fffdf5;
+    border: 1px dashed #d9c9b5;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+.dice-pool-calculation p {
+    margin: 5px 0;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+.dice-pool-calculation .inline-field-group {
+    margin-bottom: 8px; 
+}
+.dice-pool-calculation .inline-field-group label {
+    font-family: 'Open Sans', sans-serif; 
+    font-size: 0.9em;
+}
+
+.dice-results-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #fffdf5;
+    border: 1px solid #d9c9b5;
+    border-radius: 4px;
+    min-height: 30px;
+}
+.dice-results-container p {
+    margin: 0;
+    font-size: 0.9em;
+}
+.dice-results-text {
+    font-weight: bold;
+    font-family: 'Courier New', Courier, monospace; 
+    font-size: 1.1em;
+    letter-spacing: 1px;
+    word-spacing: 3px;
+}
+
+.dice-roll-actions {
+    text-align: right;
+    margin-top: 15px;
+}
+.dice-roll-actions button {
+    margin-left: 8px;
+}
+
+
+/* Medium screens - typically 2-column for main content */
+@media (min-width: 768px) { 
+    .combat-gear-columns {
+        grid-template-columns: 1fr 1fr; 
+    }
+}
+
+
+@media (min-width: 992px) and (max-width: 1199.98px) { 
+    .sheet-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .char-info { grid-column: span 2; } 
+    .stacked-attributes-combat-gear-wrapper { grid-column: span 2; } 
+    .relationships { grid-column: span 2; }
+    .insights-defects { grid-column: span 2; }
+    .skills { grid-column: span 2; }
+    .talents { grid-column: span 2; }
+    .notes { grid-column: span 2; }
+
+
+     .attributes-content-wrapper { 
+        grid-template-columns: 1fr; 
+    }
+    .conditions-columns {
+        grid-template-columns: 1fr; 
+    }
+}
+
+/* Large screens - 6 column base */
+@media (min-width: 1200px) {
+    .sheet-grid {
+        grid-template-columns: repeat(6, 1fr); 
+    }
+    .char-info { grid-column: span 3; } 
+    .stacked-attributes-combat-gear-wrapper { grid-column: span 3; } 
+    .relationships { grid-column: span 3; }
+    .insights-defects { grid-column: span 3; }
+    .skills { grid-column: span 3; }
+    .talents { grid-column: span 3; }
+    .notes { grid-column: span 6; } 
+
+
+    .attributes-content-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr; 
+        gap: 10px; 
+    }
+    .conditions-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr; 
+        gap: 8px; 
+    }
+    .combat-gear-columns {
+        grid-template-columns: 1fr 1fr; 
+    }
+}

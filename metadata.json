@@ -1,0 +1,7 @@
+{
+  "name": " Vaesen Interactive Character Sheet",
+  "description": "An interactive character sheet for the Vaesen RPG, with rulebook integration.",
+  "shortName": "Vaesen Sheet",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

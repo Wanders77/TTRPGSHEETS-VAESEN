@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaesen Interactive Character Sheet</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="actions-dropdown-container">
+                <button id="actionsMenuBtn" class="actions-menu-button">Sheet Actions ▼</button>
+                <div id="actionsDropdownContent" class="dropdown-content">
+                    <label for="importFile" class="button-like-label">Import JSON</label>
+                    <input type="file" id="importFile" accept=".json" style="display: none;">
+                    <button id="exportCharacterBtn">Export JSON</button>
+                    <button id="openDiscordSettingsBtn">Discord Settings</button>
+                </div>
+            </div>
+            <div class="header-main-line">
+                <div id="characterNameContainer" class="character-name-display-container">
+                    <span id="characterNameDisplay">Character name</span>
+                    <input type="text" id="characterNameInput" name="characterName" placeholder="Character name" style="display:none;">
+                </div>
+                <h1 id="main-title">VAESEN</h1>
+            </div>
+        </header>
+
+        <main class="sheet-grid">
+            <section class="char-info card">
+                <div class="inline-field-group">
+                    <label for="age" class="inline-label">Age:</label>
+                    <input type="number" id="age" name="age" min="0" class="short-input">
+                    <label for="ageGroup" style="margin-left: 10px;">Age Group:</label>
+                    <select id="ageGroup" name="ageGroup"></select>
+                </div>
+                <div class="inline-field-group">
+                    <label for="archetype">Archetype:</label>
+                    <select id="archetype" name="archetype"></select>
+                </div>
+
+                <div class="inline-field-group">
+                    <label for="motivation">Motivation:</label>
+                    <input type="text" id="motivation" name="motivation" list="motivationDatalist" placeholder="Enter or select motivation">
+                    <datalist id="motivationDatalist">
+                        <!-- Options will be populated by JS -->
+                    </datalist>
+                </div>
+                <div class="inline-field-group">
+                    <label for="trauma">Trauma:</label>
+                    <input type="text" id="trauma" name="trauma" list="traumaDatalist" placeholder="Enter or select trauma">
+                    <datalist id="traumaDatalist">
+                        <!-- Options will be populated by JS -->
+                    </datalist>
+                </div>
+                <div class="inline-field-group">
+                    <label for="darkSecret">Dark Secret:</label>
+                    <input type="text" id="darkSecret" name="darkSecret" list="darkSecretDatalist" placeholder="Enter or select dark secret">
+                    <datalist id="darkSecretDatalist">
+                        <!-- Options will be populated by JS -->
+                    </datalist>
+                </div>
+                
+                <div class="checkbox-first-group inline-field-group">
+                    <input type="checkbox" id="mementoUsed" name="mementoUsed" class="inline-checkbox-first">
+                    <label for="mementoUsed" id="mementoLabel" class="inline-label-checkbox-first">Memento:</label>
+                    <select id="memento" name="memento"></select>
+                </div>
+
+                <h3>Resources & Capital</h3>
+                <table class="resources-table">
+                    <thead>
+                        <tr>
+                            <th>Living Standard</th>
+                            <th>Resources</th>
+                            <th>Bonus</th>
+                            <th>Capital</th>
+                            <th title="Reset to Capital Value at start of Mystery">Current Capital</th>
+                            <th title="# of successes on your resource roll">Current Resources</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td id="resourceLivingStandard"></td>
+                            <td><select id="resources" name="resources"></select></td>
+                            <td id="resourceBonusDisplay"></td>
+                            <td id="resourceCapitalDisplay"></td>
+                            <td><input type="number" id="currentCapitalValue" name="currentCapitalValue" class="short-input" min="0" max="99" inputmode="numeric" pattern="[0-9]*"></td>
+                            <td><input type="number" id="currentResourcesValue" name="currentResourcesValue" class="short-input" min="0" max="99" inputmode="numeric" pattern="[0-9]*"></td>
+                            <td><button id="rollResourcesBtn">Roll Resources</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="checkbox-first-group" style="margin-top: 10px;">
+                    <input type="checkbox" id="advantageUsed" name="advantageUsed" class="inline-checkbox-first">
+                    <label for="advantageUsed" id="advantagesLabel" class="inline-label-checkbox-first">Current Advantage:</label> 
+                </div>
+                <textarea id="advantages" name="advantages" placeholder="Current advantage for this mystery..." rows="2"></textarea>
+                 <div class="inline-field-group" style="margin-top: 10px;">
+                    <label for="experiencePoints">Experience Points (XP):</label>
+                    <input type="number" id="experiencePoints" name="experiencePoints" value="0" min="0" class="short-input">
+                    <button id="gainXpBtn" style="margin-left:10px;">Gain XP</button>
+                    <button id="spendXpBtn" style="margin-left:5px;">Spend XP</button>
+                </div>
+            </section>
+
+            <div class="stacked-attributes-combat-gear-wrapper">
+                <section class="attributes card">
+                    
+                    <div class="attributes-content-wrapper">
+                        <div class="attributes-column">
+                            <h3>Attributes</h3>
+                            <div id="attributesContainer">
+                                <!-- Attributes will be populated by JS. -->
+                            </div>
+                        </div>
+                        <div class="conditions-column-wrapper">
+                            <div class="conditions-section-within-attributes">
+                                <h3>Conditions</h3>
+                                <div class="conditions-columns">
+                                    <div class="condition-column">
+                                        <h4>Physical</h4>
+                                        <div id="physicalConditionsContainer">
+                                            <!-- Physical conditions populated by JS -->
+                                        </div>
+                                        <div class="broken-status">
+                                            <input type="checkbox" id="cond-physicalBroken" name="physicalBroken" class="inline-checkbox">
+                                            <label for="cond-physicalBroken">Broken</label>
+                                        </div>
+                                    </div>
+                                    <div class="condition-column">
+                                        <h4>Mental</h4>
+                                        <div id="mentalConditionsContainer">
+                                            <!-- Mental conditions populated by JS -->
+                                        </div>
+                                        <div class="broken-status">
+                                            <input type="checkbox" id="cond-mentalBroken" name="mentalBroken" class="inline-checkbox">
+                                            <label for="cond-mentalBroken">Broken</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="conditions-explanation">Each active condition of a type (Physical/Mental) gives -1 die to related rolls. Max 3 conditions of a type before Broken.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="combat-gear-card card"> 
+                    <div class="combat-gear-columns">
+                        <div class="combat-gear-column">
+                            <div class="sub-section">
+                                <div class="sub-section-header">
+                                    <h3>Armor</h3>
+                                    <button id="openArmorModalBtn">Equip/Change Armor</button>
+                                </div>
+                                <div id="armorListContainer" class="item-list-container">
+                                    <!-- Armor will be listed here by JS -->
+                                </div>
+                            </div>
+                            <div class="sub-section">
+                                <div class="sub-section-header">
+                                    <h3>Weapons</h3>
+                                    <button id="openWeaponModalBtn">Add Weapon</button>
+                                </div>
+                                <div id="weaponsListContainer" class="item-list-container">
+                                    <!-- Weapons will be added dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="combat-gear-column equipment-column">
+                            <div class="sub-section equipment-sub-section"> 
+                                 <div class="sub-section-header">
+                                    <h3>Equipment</h3>
+                                    <button id="openEquipmentModalBtn">Add Equipment</button>
+                                </div>
+                                <div id="equipmentListContainer" class="item-list-container">
+                                    <!-- Equipment will be added dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="relationships card">
+                <h2>Relationships</h2>
+                <div id="relationshipsListContainer">
+                    <!-- Relationships will be populated by JS -->
+                </div>
+                <button id="openAddRelationshipModalBtn">Add Relationship</button>
+            </section>
+            
+            <section class="insights-defects card">
+                <h2>Insights & Defects</h2>
+                <div class="inline-field-group card-header-line">
+                    <label for="addInsightDefectSelect">Select Injury/Insight:</label>
+                    <select id="addInsightDefectSelect">
+                        <option value="">-- Select an item --</option>
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+                 <div id="selectedInsightDefectDescription" class="item-description-modal" style="min-height: 40px; margin-bottom:10px;">Select an item to see its effect.</div>
+                <div class="header-buttons-group" style="margin-bottom: 10px;">
+                    <button id="confirmAddInsightDefectBtn">Add Selected</button>
+                    <button id="addRandomPhysicalInjuryBtn">Random Physical</button>
+                    <button id="addRandomMentalInjuryBtn">Random Mental</button>
+                </div>
+                <div id="insightsDefectsListContainer" class="item-list-container" style="margin-top:5px;">
+                    <!-- Added insights and defects will appear here -->
+                </div>
+            </section>
+
+            <section class="skills card">
+                <h2>Skills</h2>
+                <table class="skills-table" id="skillsTable">
+                    <thead>
+                        <tr>
+                            <th>Skill</th>
+                            <th>Attribute</th>
+                            <th>Total Mod.</th>
+                            <th>Rank</th>
+                            <th>Dice Pool</th>
+                            <th>Roll</th>
+                        </tr>
+                    </thead>
+                    <tbody id="skillsTableBody">
+                        <!-- Skills will be populated by JS -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="talents card">
+                <h2>Talents</h2>
+                <div>
+                    <label for="archetypeTalent">Archetype Talent:</label>
+                    <select id="archetypeTalent" name="archetypeTalent"></select>
+                    <div id="archetypeTalentDescription" class="talent-description-static">
+                        Talent description will appear here.
+                    </div>
+                </div>
+                <div id="additionalTalentsListContainer" class="item-list-container" style="margin-top:10px;">
+                    <!-- Additional talents will be listed here with potential "Use" buttons or "Used" checkboxes -->
+                </div>
+                <button id="openAddTalentModalBtn">Add New Talent</button>
+                <textarea id="talentsOther" name="talentsOther" placeholder="Other/Custom Talents" rows="3"></textarea>
+            </section>
+            
+            <section class="notes card">
+                <h2>Notes</h2>
+                <button id="addNewNoteBtn">Add New Note</button>
+                <div id="notesListContainer">
+                    <!-- Notes will be populated here by JS -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Disclaimer: This interactive character sheet is for educational and personal use only. Vaesen&trade; is a trademark of Fria Ligan AB. All Vaesen-specific names, items, and concepts are copyright &copy; Fria Ligan AB. This tool is not affiliated with, endorsed, or sponsored by Fria Ligan AB.</p>
+        </footer>
+    </div>
+
+    <!-- Add Talent Modal -->
+    <div id="addTalentModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeTalentModalBtn">&times;</span>
+            <h3>Add New Talent</h3>
+            <div>
+                <label for="modalTalentSelect">Select Talent:</label>
+                <select id="modalTalentSelect"></select>
+            </div>
+            <div id="modalTalentDescription" class="talent-description-modal">
+                Description will appear here.
+            </div>
+            <button id="confirmAddTalentBtn">Add Talent</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Relationship Modal -->
+    <div id="addRelationshipModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeRelationshipModalBtn">&times;</span>
+            <h3 id="relationshipModalTitle">Add Relationship</h3>
+            <input type="hidden" id="editingRelationshipId">
+            <div>
+                <label for="relationshipPCName">Player Character Name:</label>
+                <input type="text" id="relationshipPCName" name="relationshipPCName">
+            </div>
+            <div>
+                <label for="relationshipTypeSelect">Relationship Type:</label>
+                <select id="relationshipTypeSelect" name="relationshipTypeSelect">
+                    <!-- Options populated by JS based on archetype -->
+                </select>
+            </div>
+            <div id="customRelationshipTypeContainer" style="display: none; margin-top: 10px;">
+                <label for="relationshipTypeCustom">Describe Custom Relationship:</label>
+                <input type="text" id="relationshipTypeCustom" name="relationshipTypeCustom" placeholder="Enter custom relationship type">
+            </div>
+            <div style="margin-top: 15px;">
+                 <button id="saveRelationshipBtn">Save Relationship</button>
+                 <button id="cancelRelationshipBtn" class="cancel-button" style="float:right;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Discord Settings Modal -->
+    <div id="discordSettingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeDiscordSettingsModalBtn">&times;</span>
+            <h3>Discord Integration Settings</h3>
+            <div class="webhook-info">
+                <p><strong>What is a Discord Webhook?</strong></p>
+                <p>A Discord Webhook is a simple way to post messages from apps (like this character sheet) into a Discord channel. It's like a special URL that Discord gives you for a specific channel.</p>
+                <p><strong>How to get a Webhook URL:</strong></p>
+                <ol>
+                    <li>Open Discord and go to the server where you want rolls to be posted.</li>
+                    <li>Go to Server Settings (usually by clicking the server name).</li>
+                    <li>Find "Integrations" or "Webhooks" in the server settings menu.</li>
+                    <li>Click "Create Webhook" (or "New Webhook").</li>
+                    <li>Give your webhook a name (e.g., "Vaesen Rolls") and choose the channel it should post to.</li>
+                    <li>Click "Copy Webhook URL".</li>
+                    <li>Paste that URL into the field below.</li>
+                </ol>
+                <p><em>Note: Keep your Webhook URL private, as anyone with it can post messages to that channel.</em></p>
+            </div>
+            <div>
+                <label for="discordWebhookUrl">Discord Webhook URL:</label>
+                <input type="text" id="discordWebhookUrl" name="discordWebhookUrl" placeholder="Paste your webhook URL here">
+            </div>
+            <div id="rollLogDisplay" class="roll-log"> 
+                <h3>Recent Rolls (Local Log):</h3>
+                <!-- Roll log will be populated by JS if Discord URL is not set -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Armor Selection Modal -->
+    <div id="armorSelectionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeArmorModalBtn">&times;</span>
+            <h3>Equip Armor</h3>
+            <div>
+                <label for="modalArmorSelect">Select Armor:</label>
+                <select id="modalArmorSelect">
+                    <option value="">-- None --</option>
+                    <!-- Armor options populated by JS -->
+                </select>
+            </div>
+            <div id="modalArmorDescription" class="item-description-modal">
+                Description will appear here.
+            </div>
+            <button id="confirmEquipArmorBtn">Equip Armor</button>
+        </div>
+    </div>
+
+    <!-- Weapon Selection Modal -->
+    <div id="weaponSelectionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeWeaponModalBtn">&times;</span>
+            <h3>Add Weapon</h3>
+            <div>
+                <label for="modalWeaponSelect">Select Weapon:</label>
+                <select id="modalWeaponSelect">
+                    <option value="">-- Select a Weapon --</option>
+                    <!-- Weapon options populated by JS -->
+                </select>
+            </div>
+            <div id="modalWeaponDescription" class="item-description-modal">
+                Description will appear here.
+            </div>
+            <button id="confirmAddWeaponBtn">Add Weapon</button>
+        </div>
+    </div>
+
+    <!-- Equipment Selection Modal -->
+    <div id="equipmentSelectionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeEquipmentModalBtn">&times;</span>
+            <h3>Add Equipment</h3>
+            <div>
+                <label for="modalEquipmentSelect">Select Equipment:</label>
+                <select id="modalEquipmentSelect">
+                    <option value="">-- Select Equipment --</option>
+                    <!-- Equipment options populated by JS -->
+                </select>
+            </div>
+            <div id="modalEquipmentDescription" class="item-description-modal">
+                Description will appear here.
+            </div>
+            <button id="confirmAddEquipmentBtn">Add Equipment</button>
+        </div>
+    </div>
+
+    <!-- Gain XP Modal -->
+    <div id="gainXpModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeGainXpModalBtn">&times;</span>
+            <h3>Development Questions</h3>
+            <p>Check each question you can answer "yes" to. You gain 1 XP for each.</p>
+            <div id="xpQuestionsContainer">
+                <!-- Checkboxes will be generated here by JS -->
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="confirmGainXpBtn">Confirm XP Gain</button>
+                <button id="cancelGainXpBtn" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dice Roll Modal -->
+    <div id="diceRollModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeDiceRollModalBtn">&times;</span>
+            <h3>Rolling for: <span id="rollNameDisplay">Attribute/Skill</span></h3>
+            
+            <div class="dice-pool-calculation">
+                <p>Base Pool (Attr+Skill): <strong id="diceRollBasePoolDisplay">0</strong></p>
+                <p>Condition Modifier: <strong id="diceRollConditionModDisplay">0</strong></p>
+                <p>Insight/Defect Modifier: <strong id="diceRollInsightDefectModDisplay">0</strong></p>
+                <p id="externalBonusLine" style="display: none;"><span id="diceRollExternalBonusLabel">Item</span> Bonus: <strong id="diceRollExternalBonusValueDisplay">0</strong></p>
+                <div class="inline-field-group">
+                    <label for="gmModifierInput" style="margin-right: 5px;">Other Dice:</label>
+                    <input type="number" id="gmModifierInput" value="0" class="short-input">
+                </div>
+                <p style="margin-top:10px; border-top: 1px solid #d9c9b5; padding-top:10px;"><strong>Final Dice Pool: <span id="diceRollFinalPoolDisplay" style="font-size: 1.1em;">0</span></strong></p>
+            </div>
+
+            <div class="dice-results-container" style="margin-top: 15px;">
+                <p>Results: <span id="diceRollResultsDisplay" class="dice-results-text"></span></p>
+            </div>
+            <p>Successes: <strong id="diceRollSuccessesDisplay" style="font-size: 1.1em;">0</strong></p>
+            
+            <div class="dice-roll-actions">
+                <button id="rollDiceInModalBtn">Roll Dice</button>
+                <button id="pushRollBtn" style="display:none;">Push the Roll (+1 Condition)</button>
+                <button id="closeRollModalSecondaryBtn" class="cancel-button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div id="confirmationModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeConfirmationModalBtn">&times;</span>
+            <h3 id="confirmationModalTitle">Confirm Action</h3>
+            <p id="confirmationModalMessage">Are you sure?</p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="confirmActionBtn">Confirm</button>
+                <button id="cancelActionBtn" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="index.tsx"></script>
+</body>
+</html><link rel="stylesheet" href="index.css">
+<script src="index.tsx" type="module"></script>
