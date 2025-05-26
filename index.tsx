@@ -1511,6 +1511,41 @@ function handleConditionChange(event: Event) {
     updateCalculations(); saveCharacterToLocalStorage();
 }
 
+async function handleRollResources() {
+    if (!character) return;
+
+    const diceToRoll = character.resources;
+    if (diceToRoll <= 0) {
+        console.log("Resources value is 0 or less. Cannot roll for resources.");
+        character.currentResourcesValue = 0;
+        const currentResourcesInput = getEl<HTMLInputElement>('currentResourcesValue');
+        if (currentResourcesInput) {
+            currentResourcesInput.value = '00';
+        }
+        saveCharacterToLocalStorage();
+        await sendSimpleRollToDiscord(
+            "Resources Roll Attempt",
+            `Attempted to roll with Resources: ${diceToRoll}. No dice rolled.`,
+            [],
+            0
+        );
+        return;
+    }
+
+    let successes = 0;
+    const results: number[] = [];
+    for (let i = 0; i < diceToRoll; i++) {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        results.push(roll);
+        if (roll === 6) {
+            successes++;
+        }
+    }
+    
+    openResourceRollResultModal(results, successes, diceToRoll);
+}
+
+
 function addNewNoteHandler() {
     const newNote: NoteItem = {
         id: getNextIdForType('Note'),
@@ -1896,6 +1931,7 @@ const weaponSelectionModal = getEl<HTMLDivElement>('weaponSelectionModal');
 const equipmentSelectionModal = getEl<HTMLDivElement>('equipmentSelectionModal');
 const gainXpModal = getEl<HTMLDivElement>('gainXpModal');
 const diceRollModal = getEl<HTMLDivElement>('diceRollModal');
+const resourceRollResultModal = getEl<HTMLDivElement>('resourceRollResultModal');
 
 
 // --- Generic Confirmation Modal ---
@@ -2170,24 +2206,44 @@ function closeDiceRollModal() {
     currentRollDetails = null;
 }
 
+// Resource Roll Result Modal
+let currentResourceRollConfirmCallback: (() => void) | null = null;
+function openResourceRollResultModal(results: number[], successes: number, diceRolledCount: number) {
+    getEl<HTMLSpanElement>('resourceRollDiceResultsDisplay').textContent = `[ ${results.join(', ')} ]`;
+    getEl<HTMLSpanElement>('resourceRollSuccessesDisplay').textContent = successes.toString();
+    
+    currentResourceRollConfirmCallback = async () => {
+        character.currentResourcesValue = successes;
+        const currentResourcesInput = getEl<HTMLInputElement>('currentResourcesValue');
+        if (currentResourcesInput) {
+            currentResourcesInput.value = successes.toString().padStart(2, '0');
+        }
+        saveCharacterToLocalStorage();
+        console.log(`Rolled ${diceRolledCount} dice for Resources. Results: [${results.join(', ')}]. Successes: ${successes}`);
+        await sendSimpleRollToDiscord(
+            "Resources Roll",
+            `Rolled ${diceRolledCount} dice (Base Resources: ${character.resources})`,
+            results,
+            successes
+        );
+        closeResourceRollResultModal();
+    };
+    openModal(resourceRollResultModal);
+}
+
+function closeResourceRollResultModal() {
+    closeModal(resourceRollResultModal);
+    currentResourceRollConfirmCallback = null; 
+}
+
+
 async function sendRollToDiscord() {
     if (!currentRollDetails) return;
 
     const webhookUrl = character.discordWebhookUrl;
-    if (!webhookUrl) {
-        console.log("Discord webhook URL not set. Skipping Discord post.");
-        const rollLogDisplay = getEl<HTMLDivElement>('rollLogDisplay');
-        const p = document.createElement('p');
-        p.textContent = `Local Log (${new Date().toLocaleTimeString()}): ${currentRollDetails.name} - Final Pool: ${currentRollDetails.finalPool}, Results: [${currentRollDetails.results.join(', ')}], Successes: ${currentRollDetails.successes}${currentRollDetails.isPushed ? ' (Pushed)' : ''}`;
-        if (rollLogDisplay.firstChild) {
-            rollLogDisplay.insertBefore(p, rollLogDisplay.firstChild);
-        } else {
-            rollLogDisplay.appendChild(p);
-        }
-        return;
-    }
+    const characterDisplayName = character.name || 'Character';
 
-    let discordMessage = `**${character.name || 'Character'} rolled for ${currentRollDetails.name}** ${currentRollDetails.isPushed ? " (Pushed)" : ""}\n`;
+    let discordMessage = `**${characterDisplayName} rolled for ${currentRollDetails.name}** ${currentRollDetails.isPushed ? " (Pushed)" : ""}\n`;
     discordMessage += `Base: ${currentRollDetails.basePool}, Cond: ${currentRollDetails.conditionMod}, I/D: ${currentRollDetails.insightDefectMod}\n`;
     
     let externalBonusText = "";
@@ -2200,11 +2256,71 @@ async function sendRollToDiscord() {
     discordMessage += `Results: \`[ ${currentRollDetails.results.join(', ')} ]\`\n`;
     discordMessage += `**Successes: ${currentRollDetails.successes}**`;
 
+    if (!webhookUrl) {
+        console.log("Discord webhook URL not set. Logging locally.");
+        const rollLogDisplay = getEl<HTMLDivElement>('rollLogDisplay');
+        const p = document.createElement('p');
+        p.textContent = `Local Log (${new Date().toLocaleTimeString()}): ${discordMessage.replace(/\*\*/g, '').replace(/`/g, '')}`; // Basic formatting removal for local log
+        if (rollLogDisplay.firstChild) {
+            rollLogDisplay.insertBefore(p, rollLogDisplay.firstChild);
+        } else {
+            rollLogDisplay.appendChild(p);
+        }
+        return;
+    }
+
     try {
         const response = await fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: discordMessage }),
+        });
+        if (!response.ok) {
+            console.error('Error sending to Discord:', response.status, await response.text());
+        } else {
+            console.log('Roll sent to Discord.');
+        }
+    } catch (error) {
+        console.error('Failed to send roll to Discord:', error);
+    }
+}
+
+async function sendSimpleRollToDiscord(rollName: string, details: string, results: number[], successes: number) {
+    const webhookUrl = character.discordWebhookUrl;
+    const characterDisplayName = character.name || 'Character';
+
+    let message = `**${characterDisplayName} performed a ${rollName}**\n`;
+    message += `${details}\n`;
+    if (results.length > 0) {
+        message += `Results: \`[ ${results.join(', ')} ]\`\n`;
+    }
+    message += `**Successes: ${successes}**`;
+
+    if (!webhookUrl) {
+        console.log("Discord webhook URL not set. Logging locally.");
+        const rollLogDisplay = getEl<HTMLDivElement>('rollLogDisplay');
+        const p = document.createElement('p');
+        // Simplified local log entry
+        let localLogMessage = `Local Log (${new Date().toLocaleTimeString()}): ${characterDisplayName} - ${rollName}. ${details}. `;
+        if (results.length > 0) {
+            localLogMessage += `Results: [${results.join(', ')}]. `;
+        }
+        localLogMessage += `Successes: ${successes}.`;
+        p.textContent = localLogMessage;
+
+        if (rollLogDisplay.firstChild) {
+            rollLogDisplay.insertBefore(p, rollLogDisplay.firstChild);
+        } else {
+            rollLogDisplay.appendChild(p);
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message }),
         });
         if (!response.ok) {
             console.error('Error sending to Discord:', response.status, await response.text());
@@ -2439,11 +2555,12 @@ function setupEventListeners() {
 
     addListener('spendXpBtn', 'click', handleSpendFiveXp); 
     
-    [armorSelectionModal, weaponSelectionModal, equipmentSelectionModal, gainXpModal, confirmationModal, diceRollModal].forEach(m => { 
+    [armorSelectionModal, weaponSelectionModal, equipmentSelectionModal, gainXpModal, confirmationModal, diceRollModal, resourceRollResultModal].forEach(m => { 
         if(m) window.addEventListener('click', (e) => { 
             if (e.target === m) {
                 if (m === confirmationModal) closeConfirmationModal();
                 else if (m === diceRollModal) closeDiceRollModal();
+                else if (m === resourceRollResultModal) closeResourceRollResultModal();
                 else closeModal(m);
             }
         }); 
@@ -2505,6 +2622,14 @@ function setupEventListeners() {
     addListener('pushRollBtn', 'click', handlePushRoll);
     const gmModInput = getEl<HTMLInputElement>('gmModifierInput');
     if (gmModInput) gmModInput.addEventListener('input', updateDiceRollModalFinalPool);
+
+    addListener('rollResourcesBtn', 'click', handleRollResources);
+    addListener('closeResourceRollResultModalBtn', 'click', closeResourceRollResultModal);
+    addListener('confirmResourceRollBtn', 'click', () => {
+        if (currentResourceRollConfirmCallback) {
+            currentResourceRollConfirmCallback();
+        }
+    });
 }
 
 // --- IMPORT/EXPORT JSON ---

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vaesen Interactive Character Sheet</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="print.css" media="print">
     <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -450,6 +451,21 @@
             <div style="text-align: right; margin-top: 20px;">
                 <button id="confirmActionBtn">Confirm</button>
                 <button id="cancelActionBtn" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resource Roll Result Modal -->
+    <div id="resourceRollResultModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeResourceRollResultModalBtn">&times;</span>
+            <h3>Resource Roll Results</h3>
+            <div class="dice-results-container">
+                <p>Dice Rolled: <span id="resourceRollDiceResultsDisplay" class="dice-results-text"></span></p>
+            </div>
+            <p>Successes (6s): <strong id="resourceRollSuccessesDisplay" style="font-size: 1.1em;">0</strong></p>
+            <div style="text-align: right; margin-top: 20px;">
+                <button id="confirmResourceRollBtn">OK</button>
             </div>
         </div>
     </div>

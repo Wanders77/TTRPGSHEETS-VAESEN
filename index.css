@@ -1113,6 +1113,16 @@ select optgroup {
     margin-left: 8px;
 }
 
+/* Resource Roll Result Modal Specific Styles */
+#resourceRollResultModal .dice-results-container {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+#resourceRollResultModal p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
 
 /* Medium screens - typically 2-column for main content */
 @media (min-width: 768px) { 

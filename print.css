@@ -1,0 +1,271 @@
+/* print.css */
+@media print {
+    body {
+        font-family: 'Lora', serif;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        margin: 0;
+        padding: 0;
+        font-size: 10pt; /* Adjust base font size for print */
+        line-height: 1.3;
+    }
+
+    .container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        background-color: #ffffff !important;
+        padding: 10px !important;
+        border: none !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+
+    header, 
+    footer,
+    .actions-dropdown-container,
+    .modal,
+    #importFile, /* The actual file input */
+    .button-like-label[for="importFile"], /* The styled label for import */
+    #exportCharacterBtn,
+    #openDiscordSettingsBtn,
+    #discordSettingsModal, /* Hides the modal content if it were somehow visible */
+    .dice-roll-actions button, /* Buttons within dice roll modal */
+    #rollResourcesBtn,
+    #gainXpBtn,
+    #spendXpBtn,
+    #openAddRelationshipModalBtn,
+    #openArmorModalBtn,
+    #openWeaponModalBtn,
+    #openEquipmentModalBtn,
+    #openAddTalentModalBtn,
+    #addNewNoteBtn,
+    #confirmAddInsightDefectBtn,
+    #addRandomPhysicalInjuryBtn,
+    #addRandomMentalInjuryBtn,
+    .skills-table .roll-button, /* Roll buttons in skills table */
+    .attribute-item .roll-button, /* Roll buttons for attributes */
+    .listed-item .actions, /* Delete/Use/Edit buttons in listed items (weapons, equip, talents, insights) */
+    .relationship-item-actions, /* Edit/Delete buttons for relationships */
+    .note-item-buttons, /* Lock/Delete buttons for notes */
+    .sub-section-header button, /* Add buttons in sub-section headers like armor, weapons, equipment */
+    .card-header-line button, /* Buttons in card headers */
+    .card-header-line .header-buttons-group, /* Group of buttons in card headers */
+    .close-button, /* All modal close buttons */
+    .webhook-info, /* Discord webhook instructions */
+    #discordWebhookUrl, /* Input field for Discord URL */
+    #rollLogDisplay /* Local roll log */
+     {
+        display: none !important;
+    }
+
+    /* Keep Character Name Display, but hide the input field if it was somehow active */
+    #characterNameContainer #characterNameInput {
+        display: none !important;
+    }
+    #characterNameContainer #characterNameDisplay {
+        display: inline-block !important; /* Ensure it's visible */
+        font-size: 2em !important; /* Adjust size for print */
+        border-bottom: 1px solid #000;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+    }
+    #main-title {
+        display: none !important; /* Hide the "VAESEN" title in header */
+    }
+    .header-main-line {
+        justify-content: flex-start; /* Align character name to left */
+    }
+
+    .sheet-grid {
+        display: block !important; /* Change grid to block for simpler printing flow */
+    }
+
+    .card {
+        background-color: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        box-shadow: none !important;
+        padding: 8px !important;
+        margin-bottom: 10px !important;
+        page-break-inside: avoid; /* Try to keep cards on one page */
+    }
+
+    .card h2 {
+        font-size: 1.3em !important;
+        color: #000000 !important;
+        border-bottom: 1px solid #666666 !important;
+    }
+    .card h3 {
+        font-size: 1.1em !important;
+        color: #000000 !important;
+    }
+    .combat-gear-card.card h3 {
+        font-size: 1em !important;
+    }
+
+    input[type="text"]:not(#characterNameInput),
+    input[type="number"],
+    select,
+    textarea {
+        border: 1px solid #dddddd !important;
+        background-color: #f9f9f9 !important; /* Light gray for readonly fields */
+        font-size: 0.9em !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact; /* Ensure background colors print in Chrome/Safari */
+        print-color-adjust: exact; /* Standard property */
+    }
+    
+    /* For displaying checkbox values */
+    input[type="checkbox"] {
+        margin-right: 5px;
+        vertical-align: middle;
+    }
+    input[type="checkbox"] + label {
+        vertical-align: middle;
+    }
+    /* Attempt to show checked status - browser support varies */
+    input[type="checkbox"]:checked::before {
+        content: "✔"; /* Or use a background image */
+        display: inline-block;
+        color: black;
+        margin-right: 3px;
+    }
+    .text-strikethrough { /* Ensure strikethrough is visible */
+        text-decoration: line-through !important;
+        color: #333333 !important;
+    }
+
+
+    .attributes-content-wrapper,
+    .conditions-columns,
+    .combat-gear-columns {
+        display: block !important; /* Simplify layout for printing */
+    }
+    .attributes-column, .conditions-column-wrapper, .combat-gear-column {
+        width: 100% !important;
+        margin-bottom: 10px;
+    }
+    
+
+    .skills-table th, .skills-table td,
+    .resources-table th, .resources-table td {
+        border: 1px solid #aaaaaa !important;
+        padding: 4px !important;
+        font-size: 0.85em !important;
+        color: #000000 !important;
+    }
+    .skills-table th, .resources-table th {
+        background-color: #eeeeee !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    .skills-table tbody tr:nth-child(even),
+    .skills-table tbody tr:nth-child(odd) {
+        background-color: #ffffff !important;
+    }
+
+
+    .listed-item, .relationship-item, .note-item {
+        border: 1px solid #dddddd !important;
+        background-color: #ffffff !important;
+        page-break-inside: avoid;
+    }
+    .listed-item-info p strong, .relationship-pc-name strong, .note-title-input {
+        color: #000000 !important;
+    }
+    .note-title-input {
+        border-bottom: 1px solid #ccc !important;
+    }
+    .note-content-textarea {
+        min-height: auto !important; /* Allow textarea to shrink if content is small */
+    }
+
+    .item-description-modal, .talent-description-static, .talent-description-modal {
+        background-color: #f0f0f0 !important;
+        border: 1px dashed #cccccc !important;
+        color: #000000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    select { /* Display selected option for selects */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      padding-right: 0; /* Remove space for arrow */
+      border: 1px solid #ccc;
+      background: #fff;
+    }
+
+    /* Ensure current values of inputs/textareas are printed */
+    input[type="text"], input[type="number"], textarea {
+        /* Values should print by default, but this helps ensure they are styled as static text */
+    }
+    textarea#advantages {
+        border: 1px solid #ccc !important;
+        background: #f9f9f9 !important;
+    }
+
+    /* Display values for number inputs if they are part of the content */
+    input[type="number"]#age,
+    input[type="number"]#experiencePoints,
+    input[type="number"]#currentCapitalValue,
+    input[type="number"]#currentResourcesValue {
+        border: 1px solid #ccc !important;
+        background: #f9f9f9 !important;
+    }
+     input[type="number"].short-input {
+        padding: 4px !important;
+        text-align: left !important;
+    }
+     .attributes input[type="number"] {
+        border: 1px solid #ccc !important;
+        background: #f9f9f9 !important;
+        padding: 4px !important;
+        text-align: left !important;
+    }
+    .skills-table td input[type="number"] {
+        border: 1px solid #ccc !important;
+        background: #f9f9f9 !important;
+        padding: 3px !important;
+        text-align: center !important;
+    }
+
+    /* For displaying select values */
+    select option:not(:checked) {
+        display: none; /* Hide non-selected options, though this might not work universally */
+    }
+    select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border: 1px solid #ccc !important;
+        background-color: #f9f9f9 !important;
+        padding: 4px;
+        color: #000;
+    }
+    select:after { /* This is a common trick for custom select arrows, won't work for displaying value */
+        content: none !important;
+    }
+    
+    /* General readability improvements */
+    a {
+        text-decoration: none !important;
+        color: #000000 !important;
+    }
+    a[href^="http"]:after {
+        content: " (" attr(href) ")"; /* Show URLs for external links */
+        font-size: 0.8em;
+    }
+
+    /* Make sure the list containers for armor, weapons etc. are visible and flow */
+    .item-list-container {
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Try to ensure content doesn't get cut off unnecessarily */
+    html, body {
+        overflow: visible !important;
+        height: auto !important;
+    }
+}
