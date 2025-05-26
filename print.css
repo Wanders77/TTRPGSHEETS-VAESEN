@@ -1,271 +1,249 @@
 /* print.css */
 @media print {
+    @page {
+        size: A4; /* Or letter */
+        margin: 0.5in; /* Adjust margins as needed */
+    }
+
     body {
-        font-family: 'Lora', serif;
+        font-family: 'Times New Roman', Times, serif; /* Classic serif font */
         background-color: #ffffff !important;
         color: #000000 !important;
-        margin: 0;
-        padding: 0;
-        font-size: 10pt; /* Adjust base font size for print */
-        line-height: 1.3;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 9pt; /* Reduced base font size */
+        line-height: 1.2; /* Tighter line spacing */
     }
 
     .container {
         max-width: 100% !important;
         margin: 0 !important;
         background-color: #ffffff !important;
-        padding: 10px !important;
+        padding: 0 !important; /* Minimal padding for the main container */
         border: none !important;
         box-shadow: none !important;
-        page-break-inside: avoid;
     }
 
-    header, 
+    /* --- Hide non-printable elements --- */
+    header .actions-dropdown-container,
+    header #main-title, /* Hide the large "VAESEN" graphic title */
     footer,
-    .actions-dropdown-container,
     .modal,
-    #importFile, /* The actual file input */
-    .button-like-label[for="importFile"], /* The styled label for import */
-    #exportCharacterBtn,
-    #openDiscordSettingsBtn,
-    #discordSettingsModal, /* Hides the modal content if it were somehow visible */
-    .dice-roll-actions button, /* Buttons within dice roll modal */
-    #rollResourcesBtn,
-    #gainXpBtn,
-    #spendXpBtn,
-    #openAddRelationshipModalBtn,
-    #openArmorModalBtn,
-    #openWeaponModalBtn,
-    #openEquipmentModalBtn,
-    #openAddTalentModalBtn,
-    #addNewNoteBtn,
-    #confirmAddInsightDefectBtn,
-    #addRandomPhysicalInjuryBtn,
-    #addRandomMentalInjuryBtn,
-    .skills-table .roll-button, /* Roll buttons in skills table */
-    .attribute-item .roll-button, /* Roll buttons for attributes */
-    .listed-item .actions, /* Delete/Use/Edit buttons in listed items (weapons, equip, talents, insights) */
-    .relationship-item-actions, /* Edit/Delete buttons for relationships */
-    .note-item-buttons, /* Lock/Delete buttons for notes */
-    .sub-section-header button, /* Add buttons in sub-section headers like armor, weapons, equipment */
-    .card-header-line button, /* Buttons in card headers */
-    .card-header-line .header-buttons-group, /* Group of buttons in card headers */
-    .close-button, /* All modal close buttons */
-    .webhook-info, /* Discord webhook instructions */
-    #discordWebhookUrl, /* Input field for Discord URL */
-    #rollLogDisplay /* Local roll log */
+    #importFile, .button-like-label[for="importFile"], #exportCharacterBtn, #openDiscordSettingsBtn,
+    .dice-roll-actions button, #rollResourcesBtn, #gainXpBtn, #spendXpBtn,
+    .skills-table .roll-button, .attribute-item .roll-button,
+    .listed-item .actions, .relationship-item-actions, .note-item-buttons,
+    .sub-section-header button, .card-header-line button, .card-header-line .header-buttons-group,
+    .close-button, .webhook-info, #discordWebhookUrl, #rollLogDisplay,
+    #openAddRelationshipModalBtn, #openArmorModalBtn, #openWeaponModalBtn, #openEquipmentModalBtn,
+    #openAddTalentModalBtn, #addNewNoteBtn, #confirmAddInsightDefectBtn,
+    #addRandomPhysicalInjuryBtn, #addRandomMentalInjuryBtn,
+    #gmModifierInput, /* Input for GM dice mod */
+    #archetypeTalentDescription, /* Archetype talent description that shows on screen */
+    .talent-description-modal, .item-description-modal, /* Descriptions in modals */
+    .conditions-explanation, /* Small help text for conditions */
+    #selectedInsightDefectDescription /* Description for selected insight/defect before adding */
      {
         display: none !important;
     }
 
-    /* Keep Character Name Display, but hide the input field if it was somehow active */
-    #characterNameContainer #characterNameInput {
-        display: none !important;
-    }
-    #characterNameContainer #characterNameDisplay {
-        display: inline-block !important; /* Ensure it's visible */
-        font-size: 2em !important; /* Adjust size for print */
-        border-bottom: 1px solid #000;
-        padding-bottom: 5px;
-        margin-bottom: 10px;
-    }
-    #main-title {
-        display: none !important; /* Hide the "VAESEN" title in header */
+    /* --- Header Styling --- */
+    header {
+        border-bottom: 1px solid #000 !important;
+        padding-bottom: 5px !important;
+        margin-bottom: 10px !important;
     }
     .header-main-line {
-        justify-content: flex-start; /* Align character name to left */
+        justify-content: flex-start !important; /* Align character name to the left */
+    }
+    #characterNameContainer #characterNameInput { display: none !important; }
+    #characterNameContainer #characterNameDisplay {
+        display: inline-block !important;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 18pt !important; /* Prominent character name */
+        font-weight: bold;
+        border-bottom: 1px solid #000;
+        padding-bottom: 2px;
+        margin: 0;
+        color: #000 !important;
     }
 
+    /* --- Main Layout --- */
     .sheet-grid {
-        display: block !important; /* Change grid to block for simpler printing flow */
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* Two-column layout */
+        gap: 8px !important; /* Reduced gap */
+        align-items: start; /* Align items to the start of their grid cell */
     }
 
     .card {
         background-color: #ffffff !important;
-        border: 1px solid #cccccc !important;
+        border: 1px solid #999 !important; /* Lighter border for print */
         box-shadow: none !important;
-        padding: 8px !important;
-        margin-bottom: 10px !important;
-        page-break-inside: avoid; /* Try to keep cards on one page */
+        padding: 6px !important; /* Reduced padding */
+        margin-bottom: 8px !important;
+        page-break-inside: avoid;
+        font-size: 8.5pt; /* Slightly smaller font within cards */
     }
 
-    .card h2 {
-        font-size: 1.3em !important;
+    .card h2, .card h3 {
+        font-family: 'Times New Roman', Times, serif;
+        font-weight: bold;
+        text-transform: uppercase; /* Mimic official sheet headers */
         color: #000000 !important;
-        border-bottom: 1px solid #666666 !important;
+        margin-top: 0;
+        margin-bottom: 4px; /* Reduced margin */
+        padding-bottom: 2px;
+        border-bottom: 1px solid #666 !important;
     }
-    .card h3 {
-        font-size: 1.1em !important;
-        color: #000000 !important;
-    }
-    .combat-gear-card.card h3 {
-        font-size: 1em !important;
+    .card h2 { font-size: 12pt !important; }
+    .card h3 { font-size: 10pt !important; }
+
+    /* --- Form Elements as Static Text --- */
+    label {
+        font-weight: bold !important;
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 8.5pt !important;
+        color: #000 !important;
+        margin-right: 4px;
+        margin-bottom: 1px !important;
     }
 
     input[type="text"]:not(#characterNameInput),
     input[type="number"],
-    select,
+    textarea,
+    select {
+        border: none !important;
+        border-bottom: 1px dotted #333 !important; /* Line to write on */
+        border-radius: 0 !important;
+        background-color: transparent !important;
+        padding: 1px 0 !important;
+        margin: 0 0 2px 0 !important; /* Reduced margin */
+        font-size: 8.5pt !important; /* Inherit from card */
+        color: #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        box-shadow: none !important;
+        display: inline !important;
+        width: auto !important;
+        min-width: 30px; /* Ensure some space for numbers */
+        vertical-align: baseline;
+    }
+    input[type="number"] { -moz-appearance: textfield !important; } /* Firefox */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none !important; margin: 0 !important;
+    }
     textarea {
-        border: 1px solid #dddddd !important;
-        background-color: #f9f9f9 !important; /* Light gray for readonly fields */
-        font-size: 0.9em !important;
-        color: #000000 !important;
-        -webkit-print-color-adjust: exact; /* Ensure background colors print in Chrome/Safari */
-        print-color-adjust: exact; /* Standard property */
-    }
-    
-    /* For displaying checkbox values */
-    input[type="checkbox"] {
-        margin-right: 5px;
-        vertical-align: middle;
-    }
-    input[type="checkbox"] + label {
-        vertical-align: middle;
-    }
-    /* Attempt to show checked status - browser support varies */
-    input[type="checkbox"]:checked::before {
-        content: "✔"; /* Or use a background image */
-        display: inline-block;
-        color: black;
-        margin-right: 3px;
-    }
-    .text-strikethrough { /* Ensure strikethrough is visible */
-        text-decoration: line-through !important;
-        color: #333333 !important;
-    }
-
-
-    .attributes-content-wrapper,
-    .conditions-columns,
-    .combat-gear-columns {
-        display: block !important; /* Simplify layout for printing */
-    }
-    .attributes-column, .conditions-column-wrapper, .combat-gear-column {
-        width: 100% !important;
-        margin-bottom: 10px;
-    }
-    
-
-    .skills-table th, .skills-table td,
-    .resources-table th, .resources-table td {
-        border: 1px solid #aaaaaa !important;
-        padding: 4px !important;
-        font-size: 0.85em !important;
-        color: #000000 !important;
-    }
-    .skills-table th, .resources-table th {
-        background-color: #eeeeee !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    .skills-table tbody tr:nth-child(even),
-    .skills-table tbody tr:nth-child(odd) {
-        background-color: #ffffff !important;
-    }
-
-
-    .listed-item, .relationship-item, .note-item {
-        border: 1px solid #dddddd !important;
-        background-color: #ffffff !important;
-        page-break-inside: avoid;
-    }
-    .listed-item-info p strong, .relationship-pc-name strong, .note-title-input {
-        color: #000000 !important;
-    }
-    .note-title-input {
-        border-bottom: 1px solid #ccc !important;
-    }
-    .note-content-textarea {
-        min-height: auto !important; /* Allow textarea to shrink if content is small */
-    }
-
-    .item-description-modal, .talent-description-static, .talent-description-modal {
-        background-color: #f0f0f0 !important;
-        border: 1px dashed #cccccc !important;
-        color: #000000 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-    
-    select { /* Display selected option for selects */
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      padding-right: 0; /* Remove space for arrow */
-      border: 1px solid #ccc;
-      background: #fff;
-    }
-
-    /* Ensure current values of inputs/textareas are printed */
-    input[type="text"], input[type="number"], textarea {
-        /* Values should print by default, but this helps ensure they are styled as static text */
-    }
-    textarea#advantages {
-        border: 1px solid #ccc !important;
-        background: #f9f9f9 !important;
-    }
-
-    /* Display values for number inputs if they are part of the content */
-    input[type="number"]#age,
-    input[type="number"]#experiencePoints,
-    input[type="number"]#currentCapitalValue,
-    input[type="number"]#currentResourcesValue {
-        border: 1px solid #ccc !important;
-        background: #f9f9f9 !important;
-    }
-     input[type="number"].short-input {
-        padding: 4px !important;
-        text-align: left !important;
-    }
-     .attributes input[type="number"] {
-        border: 1px solid #ccc !important;
-        background: #f9f9f9 !important;
-        padding: 4px !important;
-        text-align: left !important;
-    }
-    .skills-table td input[type="number"] {
-        border: 1px solid #ccc !important;
-        background: #f9f9f9 !important;
-        padding: 3px !important;
-        text-align: center !important;
-    }
-
-    /* For displaying select values */
-    select option:not(:checked) {
-        display: none; /* Hide non-selected options, though this might not work universally */
+        border: 1px dotted #333 !important; /* Box for larger text */
+        display: block !important;
+        width: 98% !important;
+        height: auto !important;
+        min-height: 1.5em; /* Enough for one line if empty */
+        overflow: visible !important;
+        white-space: pre-wrap; /* Preserve line breaks in textareas */
     }
     select {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
-        border: 1px solid #ccc !important;
-        background-color: #f9f9f9 !important;
-        padding: 4px;
-        color: #000;
+        -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important;
+        border-bottom: 1px dotted #333 !important;
     }
-    select:after { /* This is a common trick for custom select arrows, won't work for displaying value */
-        content: none !important;
+    select option:not(:checked) { display: none; }
+
+    /* Checkbox styling */
+    input[type="checkbox"] {
+        appearance: none; -webkit-appearance: none; -moz-appearance: none;
+        width: 0.8em; height: 0.8em; border: 1px solid #000;
+        vertical-align: middle; margin-right: 3px; position: relative;
+        display: inline-block;
     }
+    input[type="checkbox"]:checked::before {
+        content: "X"; position: absolute; top: 50%; left: 50%;
+        transform: translate(-50%, -50%); font-size: 0.7em; color: #000;
+    }
+    .text-strikethrough { text-decoration: line-through !important; color: #555 !important; }
+
+    /* --- Specific Card Layouts --- */
+    .char-info div, .inline-field-group {
+        margin-bottom: 3px !important;
+    }
+    .inline-field-group label, .inline-field-group input, .inline-field-group select {
+        display: inline-block !important; vertical-align: baseline;
+    }
+    .char-info .inline-field-group select, .char-info .inline-field-group input[type="text"] {
+        width: auto !important; /* Let text define */
+        min-width: 100px; /* Minimum width */
+    }
+    .char-info .short-input { width: 40px !important; }
+
+    /* Attributes and Conditions within one card */
+    .attributes.card .attributes-content-wrapper { display: block !important; }
+    .attributes-column, .conditions-column-wrapper { margin-bottom: 5px; }
+    .conditions-columns { display: block !important; }
+    .condition-column { margin-bottom: 3px; }
+    .condition-column h4 { font-size: 9pt !important; text-transform: none; }
+    .attribute-item { display: flex; justify-content: space-between; margin-bottom: 1px !important; }
+    .attribute-item label { flex-grow: 0 !important; }
+    .attribute-item input[type="number"] { margin-left: 5px !important; }
+
+    /* Skills Table */
+    .skills-table { width: 100%; border-collapse: collapse; margin-bottom: 5px !important; }
+    .skills-table th, .skills-table td {
+        border: 1px solid #aaa !important; padding: 2px !important; font-size: 8pt !important;
+    }
+    .skills-table th { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; text-transform: uppercase; }
+    .skills-table td.skill-name-cell { font-weight: normal; }
+    .skills-table td.attribute-cell { font-style: normal; font-size: 7.5pt !important; }
+    .skills-table td.condition-mod-cell, .skills-table td.dice-pool-cell { text-align: center; font-weight: normal; }
+    .skills-table td input[type="number"] { width: 30px !important; padding: 1px !important; }
+
+    /* Lists: Relationships, Talents, Equipment, Insights/Defects */
+    .item-list-container { margin-top: 2px !important; margin-bottom: 3px !important; min-height: auto !important; }
+    .listed-item, .relationship-item, .note-item {
+        padding: 3px !important; margin-bottom: 3px !important;
+    }
+    .listed-item-info p, .relationship-item p, .note-item p {
+        margin: 0 0 1px 0 !important; font-size: 8pt !important; line-height: 1.1 !important;
+    }
+    .listed-item-info p strong, .relationship-pc-name strong, .note-title-input {
+        font-family: 'Times New Roman', Times, serif; font-weight: bold; font-size: 8.5pt !important;
+    }
+    .note-title-input { border-bottom: 1px solid #ccc !important; }
+    .listed-item-info .item-details { font-size: 7.5pt !important; color: #333 !important; }
     
-    /* General readability improvements */
-    a {
-        text-decoration: none !important;
-        color: #000000 !important;
+    /* Resources Table */
+    .resources-table { font-size: 8pt !important; }
+    .resources-table th, .resources-table td { padding: 3px !important; }
+    .resources-table td select#resources { min-width: 60px !important; }
+    .resources-table td input[type="number"].short-input { width: 35px !important; }
+
+    /* Talent Display */
+    #archetypeTalentDescription.talent-description-static {
+        display: block; /* Make sure it's visible */
+        padding: 2px;
+        border: 1px solid #ccc;
+        margin-top: 2px;
+        font-size: 8pt;
     }
-    a[href^="http"]:after {
-        content: " (" attr(href) ")"; /* Show URLs for external links */
-        font-size: 0.8em;
+    #talentsOther { /* Textarea for other talents */
+        height: 2.5em; /* Roughly 2 lines */
     }
 
-    /* Make sure the list containers for armor, weapons etc. are visible and flow */
-    .item-list-container {
-        min-height: auto !important;
-        overflow: visible !important;
-    }
+    /* Specific Grid Column Assignments for Print */
+    .sheet-grid > .char-info { grid-column: 1 / 2; grid-row: 1 / 2; }
+    .sheet-grid > .attributes { grid-column: 1 / 2; grid-row: 2 / 3; }
+    .sheet-grid > .skills { grid-column: 2 / 3; grid-row: 1 / 4; } /* Skills take more vertical space */
+    
+    .sheet-grid > .talents { grid-column: 1 / 2; grid-row: 3 / 4; }
+    .sheet-grid > .relationships { grid-column: 1 / 2; grid-row: 4 / 5; }
+    
+    .sheet-grid > .combat-gear-card { grid-column: 2 / 3; grid-row: 4 / 5; }
+    .sheet-grid > .insights-defects { grid-column: 2 / 3; grid-row: 5 / 6; }
 
-    /* Try to ensure content doesn't get cut off unnecessarily */
-    html, body {
-        overflow: visible !important;
-        height: auto !important;
-    }
+    .sheet-grid > .notes { grid-column: 1 / 3; grid-row: 6 / 7; } /* Notes span both columns */
+
+    /* Adjust sub-section within combat-gear for print */
+    .combat-gear-card .combat-gear-columns { display: block !important; }
+    .combat-gear-card .combat-gear-column { margin-bottom: 5px; }
+    .sub-section { padding: 3px; margin-bottom: 5px; }
+    .sub-section-header h3 { font-size: 9pt !important; }
 }
