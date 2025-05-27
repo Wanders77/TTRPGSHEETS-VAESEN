@@ -239,7 +239,7 @@
     .sheet-grid > .char-info { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; }
     .sheet-grid > .attributes { grid-column: 2 / 3 !important; grid-row: 1 / 2 !important; }
     
-    .sheet-grid > .skills { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; }
+    .sheet-grid > .skills { grid-column: 1 / 2 !important; grid-row: 2 / 2 !important; }
     .sheet-grid > .combat-gear-card { grid-column: 2 / 3 !important; grid-row: 2 / 3 !important; }
 
     /* PAGE 2 */
