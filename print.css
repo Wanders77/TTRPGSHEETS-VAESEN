@@ -1,3 +1,4 @@
+
 /* print.css */
 @media print {
     @page {
@@ -72,6 +73,7 @@
     .sheet-grid {
         display: grid !important;
         grid-template-columns: 1fr 1fr !important; /* Two-column layout */
+        grid-template-rows: auto auto auto auto auto; /* Define rows for the grid system */
         gap: 8px !important; /* Reduced gap */
         align-items: start; /* Align items to the start of their grid cell */
     }
@@ -162,7 +164,7 @@
     }
     .text-strikethrough { text-decoration: line-through !important; color: #555 !important; }
 
-    /* --- Specific Card Layouts --- */
+    /* --- Specific Card Styling --- */
     .char-info div, .inline-field-group {
         margin-bottom: 3px !important;
     }
@@ -175,19 +177,14 @@
     }
     .char-info .short-input { width: 40px !important; }
 
-    /* Attributes and Conditions within one card */
-    .attributes.card .attributes-content-wrapper { display: block !important; }
+    /* Attributes and Conditions */
+    .attributes.card .attributes-content-wrapper { display: block !important; } /* Stack attribute list and conditions */
     .attributes-column { margin-bottom: 5px; }
     .conditions-column-wrapper { margin-bottom: 5px; }
-
-    /* Make Physical and Mental Conditions side-by-side */
-    .attributes.card .conditions-columns {
+    .attributes.card .conditions-columns { /* Side-by-side Physical/Mental */
         display: grid !important;
         grid-template-columns: 1fr 1fr !important;
-        gap: 5px !important; /* Small gap between physical and mental */
-    }
-    .attributes.card .condition-column {
-        margin-bottom: 0 !important; /* Remove bottom margin if it was causing layout issues */
+        gap: 5px !important;
     }
     .condition-column h4 { font-size: 9pt !important; text-transform: none; }
     .attribute-item { display: flex; justify-content: space-between; margin-bottom: 1px !important; }
@@ -205,7 +202,7 @@
     .skills-table td.condition-mod-cell, .skills-table td.dice-pool-cell { text-align: center; font-weight: normal; }
     .skills-table td input[type="number"] { width: 30px !important; padding: 1px !important; }
 
-    /* Lists: Relationships, Talents, Equipment, Insights/Defects */
+    /* Item Lists */
     .item-list-container { margin-top: 2px !important; margin-bottom: 3px !important; min-height: auto !important; }
     .listed-item, .relationship-item, .note-item {
         padding: 3px !important; margin-bottom: 3px !important;
@@ -227,17 +224,17 @@
 
     /* Talent Display */
     #archetypeTalentDescription.talent-description-static {
-        display: block; /* Make sure it's visible */
-        padding: 2px;
-        border: 1px solid #ccc;
-        margin-top: 2px;
-        font-size: 8pt;
+        display: block; padding: 2px; border: 1px solid #ccc; margin-top: 2px; font-size: 8pt;
     }
-    #talentsOther { /* Textarea for other talents */
-        height: 2.5em; /* Roughly 2 lines */
-    }
+    #talentsOther { height: 2.5em; }
 
-    /* --- CARD LAYOUT FOR PRINT --- */
+    /* Adjust sub-section within combat-gear for print */
+    .combat-gear-card .combat-gear-columns { display: block !important; } /* Stack armor/weapons/equipment within the card */
+    .combat-gear-card .combat-gear-column { margin-bottom: 5px; }
+    .sub-section { padding: 3px; margin-bottom: 5px; }
+    .sub-section-header h3 { font-size: 9pt !important; }
+
+    /* --- PRINT LAYOUT: CARD PLACEMENT --- */
     /* PAGE 1 */
     .sheet-grid > .char-info { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; }
     .sheet-grid > .attributes { grid-column: 2 / 3 !important; grid-row: 1 / 2 !important; }
@@ -248,23 +245,17 @@
     /* PAGE 2 */
     .sheet-grid > .talents {
         page-break-before: always !important;
-        grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; /* Row 1 on Page 2 */
+        grid-column: 1 / 2 !important; grid-row: 3 / 4 !important; 
     }
     .sheet-grid > .relationships {
-        grid-column: 2 / 3 !important; grid-row: 1 / 2 !important; /* Row 1 on Page 2 */
+        grid-column: 2 / 3 !important; grid-row: 3 / 4 !important; 
     }
 
     .sheet-grid > .insights-defects {
-        grid-column: 1 / 3 !important; grid-row: 2 / 3 !important; /* Row 2 on Page 2, spanning */
+        grid-column: 1 / 3 !important; grid-row: 4 / 5 !important; 
     }
     
     .sheet-grid > .notes {
-        grid-column: 1 / 3 !important; grid-row: 3 / 4 !important; /* Row 3 on Page 2, spanning */
+        grid-column: 1 / 3 !important; grid-row: 5 / 6 !important; 
     }
-
-    /* Adjust sub-section within combat-gear for print */
-    .combat-gear-card .combat-gear-columns { display: block !important; }
-    .combat-gear-card .combat-gear-column { margin-bottom: 5px; }
-    .sub-section { padding: 3px; margin-bottom: 5px; }
-    .sub-section-header h3 { font-size: 9pt !important; }
 }
