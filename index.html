@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,6 +19,7 @@
                     <input type="file" id="importFile" accept=".json" style="display: none;">
                     <button id="exportCharacterBtn">Export JSON</button>
                     <button id="openDiscordSettingsBtn">Discord Settings</button>
+                    <button id="clearCharacterSheetBtn">Clear Character Sheet</button>
                 </div>
             </div>
             <div class="header-main-line">
@@ -110,46 +112,52 @@
             </section>
 
             <div class="stacked-attributes-combat-gear-wrapper">
-                <section class="attributes card">
-                    
-                    <div class="attributes-content-wrapper">
-                        <div class="attributes-column">
-                            <h3>Attributes</h3>
-                            <div id="attributesContainer">
-                                <!-- Attributes will be populated by JS. -->
-                            </div>
-                        </div>
-                        <div class="conditions-column-wrapper">
-                            <div class="conditions-section-within-attributes">
-                                <h3>Conditions</h3>
-                                <div class="conditions-columns">
-                                    <div class="condition-column">
-                                        <h4>Physical</h4>
-                                        <div id="physicalConditionsContainer">
-                                            <!-- Physical conditions populated by JS -->
-                                        </div>
-                                        <div class="broken-status">
-                                            <input type="checkbox" id="cond-physicalBroken" name="physicalBroken" class="inline-checkbox">
-                                            <label for="cond-physicalBroken">Broken</label>
-                                        </div>
-                                    </div>
-                                    <div class="condition-column">
-                                        <h4>Mental</h4>
-                                        <div id="mentalConditionsContainer">
-                                            <!-- Mental conditions populated by JS -->
-                                        </div>
-                                        <div class="broken-status">
-                                            <input type="checkbox" id="cond-mentalBroken" name="mentalBroken" class="inline-checkbox">
-                                            <label for="cond-mentalBroken">Broken</label>
-                                        </div>
-                                    </div>
+                <div class="attributes-row-with-actions">
+                    <section class="attributes card">
+                        <div class="attributes-content-wrapper">
+                            <div class="attributes-column">
+                                <h3>Attributes</h3>
+                                <div id="attributesContainer">
+                                    <!-- Attributes will be populated by JS. -->
                                 </div>
-                                <p class="conditions-explanation">Each active condition of a type (Physical/Mental) gives -1 die to related rolls. Max 3 conditions of a type before Broken.</p>
+                            </div>
+                            <div class="conditions-column-wrapper">
+                                <div class="conditions-section-within-attributes">
+                                    <h3>Conditions</h3>
+                                    <div class="conditions-columns">
+                                        <div class="condition-column">
+                                            <h4>Physical</h4>
+                                            <div id="physicalConditionsContainer">
+                                                <!-- Physical conditions populated by JS -->
+                                            </div>
+                                            <div class="broken-status">
+                                                <input type="checkbox" id="cond-physicalBroken" name="physicalBroken" class="inline-checkbox">
+                                                <label for="cond-physicalBroken">Broken</label>
+                                            </div>
+                                        </div>
+                                        <div class="condition-column">
+                                            <h4>Mental</h4>
+                                            <div id="mentalConditionsContainer">
+                                                <!-- Mental conditions populated by JS -->
+                                            </div>
+                                            <div class="broken-status">
+                                                <input type="checkbox" id="cond-mentalBroken" name="mentalBroken" class="inline-checkbox">
+                                                <label for="cond-mentalBroken">Broken</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="conditions-explanation">Each active condition of a type (Physical/Mental) gives -1 die to related rolls. Max 3 conditions of a type before Broken.</p>
+                                </div>
                             </div>
                         </div>
+                    </section>
+                    <div class="quick-actions-panel card">
+                        <!-- Title removed as per request -->
+                        <button id="fearBtn">Fear Test</button>
+                        <button id="slowActionsBtn">Slow Actions</button>
+                        <button id="fastActionsBtn">Fast Actions</button>
                     </div>
-                </section>
-                
+                </div>
                 <section class="combat-gear-card card"> 
                     <div class="combat-gear-columns">
                         <div class="combat-gear-column">
@@ -470,7 +478,105 @@
         </div>
     </div>
 
+    <!-- Slow Actions Modal -->
+    <div id="slowActionsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeSlowActionsModalBtn">&times;</span>
+            <h3>Slow Actions (p. 60)</h3>
+            <table class="actions-table" id="slowActionsTable">
+                <thead>
+                    <tr>
+                        <th>Action Name</th>
+                        <th>Skill (if applicable)</th>
+                    </tr>
+                </thead>
+                <tbody><!-- Populated by JS --></tbody>
+            </table>
+            <div style="text-align: right; margin-top: 15px;">
+                <button id="closeSlowActionsModalSecondaryBtn" class="cancel-button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fast Actions Modal -->
+    <div id="fastActionsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeFastActionsModalBtn">&times;</span>
+            <h3>Fast Actions (p. 60)</h3>
+            <table class="actions-table" id="fastActionsTable">
+                <thead>
+                    <tr>
+                        <th>Action Name</th>
+                        <th>Skill (if applicable)</th>
+                    </tr>
+                </thead>
+                <tbody><!-- Populated by JS --></tbody>
+            </table>
+            <div style="text-align: right; margin-top: 15px;">
+                <button id="closeFastActionsModalSecondaryBtn" class="cancel-button">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Fear Test Modal -->
+    <div id="fearTestModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeFearTestModalBtn">&times;</span>
+            <h3>Fear Test (p. 68)</h3>
+            <div class="dice-pool-calculation">
+                <div class="inline-field-group">
+                    <label>Base Attribute:</label>
+                    <div id="fearTestAttributeRadioGroup" style="margin-left: 10px;">
+                        <input type="radio" id="fearTestAttrLogic" name="fearTestAttribute" value="Logic" class="inline-radio">
+                        <label for="fearTestAttrLogic" class="inline-label-radio">Logic (<span id="fearTestLogicValueDisplay">0</span>)</label>
+                        <input type="radio" id="fearTestAttrEmpathy" name="fearTestAttribute" value="Empathy" class="inline-radio" style="margin-left: 10px;">
+                        <label for="fearTestAttrEmpathy" class="inline-label-radio">Empathy (<span id="fearTestEmpathyValueDisplay">0</span>)</label>
+                    </div>
+                </div>
+                <p>Condition Modifier: <strong id="fearTestConditionModDisplay">-0</strong></p>
+                <p>Talent Bonus (Brave): <strong id="fearTestBraveTalentBonusDisplay">+0</strong></p>
+                 <div class="inline-field-group">
+                    <label for="fearTestPlayersPresentInput">Players Present (max 3):</label>
+                    <input type="number" id="fearTestPlayersPresentInput" value="0" min="0" max="3" class="short-input">
+                </div>
+                <div class="inline-field-group">
+                    <label for="fearTestOtherDiceInput">Other Dice (GM, etc.):</label>
+                    <input type="number" id="fearTestOtherDiceInput" value="0" class="short-input">
+                </div>
+                <div class="inline-field-group">
+                    <label>Target Successes (Optional):</label>
+                    <div>
+                        <input type="radio" id="fearTargetNone" name="fearTestTargetSuccesses" value="" checked class="inline-radio">
+                        <label for="fearTargetNone" class="inline-label-radio">None</label>
+                        <input type="radio" id="fearTarget1" name="fearTestTargetSuccesses" value="1" class="inline-radio" style="margin-left: 5px;">
+                        <label for="fearTarget1" class="inline-label-radio">1</label>
+                        <input type="radio" id="fearTarget2" name="fearTestTargetSuccesses" value="2" class="inline-radio" style="margin-left: 5px;">
+                        <label for="fearTarget2" class="inline-label-radio">2</label>
+                        <input type="radio" id="fearTarget3" name="fearTestTargetSuccesses" value="3" class="inline-radio" style="margin-left: 5px;">
+                        <label for="fearTarget3" class="inline-label-radio">3</label>
+                    </div>
+                </div>
+                <p style="margin-top:10px; border-top: 1px solid #d9c9b5; padding-top:10px;">
+                    <strong>Final Dice Pool: <span id="fearTestFinalPoolDisplay" style="font-size: 1.1em;">0</span></strong>
+                </p>
+            </div>
+            <div class="dice-results-container" style="margin-top: 15px;">
+                <p>Results: <span id="fearTestRollResultsDisplay" class="dice-results-text"></span></p>
+            </div>
+            <p>Successes: <strong id="fearTestSuccessesDisplay" style="font-size: 1.1em;">0</strong></p>
+            <p id="fearTestRoundsTerrifiedLine" style="display:none;">Rounds Terrified (1D6): <strong id="fearTestRoundsTerrifiedDisplay" style="font-size: 1.1em;">0</strong></p>
+            <div class="dice-roll-actions">
+                <button id="rollFearTestBtn">Roll Fear Test</button>
+                <button id="closeFearTestModalSecondaryBtn" class="cancel-button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dodge/Parry Info Modal is removed from HTML as per request -->
+
+
     <script type="module" src="index.tsx"></script>
 </body>
-</html><link rel="stylesheet" href="index.css">
+</html>
+<link rel="stylesheet" href="index.css">
 <script src="index.tsx" type="module"></script>

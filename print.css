@@ -1,4 +1,3 @@
-
 /* print.css */
 @media print {
     @page {
@@ -43,7 +42,8 @@
     #archetypeTalentDescription, /* Archetype talent description that shows on screen */
     .talent-description-modal, .item-description-modal, /* Descriptions in modals */
     .conditions-explanation, /* Small help text for conditions */
-    #selectedInsightDefectDescription /* Description for selected insight/defect before adding */
+    #selectedInsightDefectDescription, /* Description for selected insight/defect before adding */
+    .quick-actions-panel /* Hide the new quick actions panel */
      {
         display: none !important;
     }
@@ -77,6 +77,13 @@
         gap: 8px !important; /* Reduced gap */
         align-items: start; /* Align items to the start of their grid cell */
     }
+    
+    /* Make wrappers 'display: contents' so their children are direct grid items of .sheet-grid for print layout */
+    .stacked-attributes-combat-gear-wrapper,
+    .attributes-row-with-actions {
+        display: contents !important;
+    }
+
 
     .card {
         background-color: #ffffff !important;
@@ -236,15 +243,20 @@
 
     /* --- PRINT LAYOUT: CARD PLACEMENT --- */
     /* PAGE 1 */
-    .sheet-grid > .char-info { grid-column: 1 / 3 !important; grid-row: 1 / 2 !important; }
-    .sheet-grid > .relationships { grid-column: 1 / 3 !important; grid-row: 2 / 3 !important; }
+    /* Use general selectors that will find the cards regardless of nesting due to 'display: contents' */
+    .sheet-grid .char-info.card { grid-column: 1 / 3 !important; grid-row: 1 / 2 !important; }
+    .sheet-grid .relationships.card { grid-column: 1 / 3 !important; grid-row: 2 / 3 !important; }
     
-    .sheet-grid > .attributes { grid-column: 1 / 2 !important; grid-row: 3 / 4 !important; }
-    .sheet-grid > .combat-gear-card { grid-column: 2 / 3 !important; grid-row: 3 / 4 !important; } 
+    .sheet-grid .attributes.card { 
+        grid-column: 1 / 2 !important; 
+        grid-row: 3 / 4 !important; 
+        width: 100% !important; /* Ensure it takes full cell width */
+    }
+    .sheet-grid .combat-gear-card.card { grid-column: 2 / 3 !important; grid-row: 3 / 4 !important; } 
     
-    /* PAGE 2 */
-    .sheet-grid > .talents { grid-column: 1 / 3 !important; grid-row: 4 / 5 !important; }
-    .sheet-grid > .skills { grid-column: 1 / 3 !important; grid-row: 7 / 8 !important; }
-    .sheet-grid > .insights-defects { grid-column: 1 / 3 !important; grid-row: 9 / 10 !important;}
-    .sheet-grid > .notes { grid-column: 1 / 3 !important; grid-row: 11 / 12 !important;}
+    /* PAGE 2 - These selectors should find the cards even if nested for screen */
+    .sheet-grid .talents.card { grid-column: 1 / 3 !important; grid-row: 4 / 5 !important; page-break-before: always !important;}
+    .sheet-grid .skills.card { grid-column: 1 / 3 !important; grid-row: 7 / 8 !important; } /* Assuming talents, relationships, insights take up rows 4,5,6 effectively */
+    .sheet-grid .insights-defects.card { grid-column: 1 / 3 !important; grid-row: 9 / 10 !important;}
+    .sheet-grid .notes.card { grid-column: 1 / 3 !important; grid-row: 11 / 12 !important;}
 }

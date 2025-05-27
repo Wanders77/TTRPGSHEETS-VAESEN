@@ -986,6 +986,52 @@ button.action-button:hover {
     gap: 10px; 
 }
 
+.attributes-row-with-actions {
+    display: flex;
+    gap: 10px;
+    align-items: stretch; /* Makes cards in this row the same height if possible */
+}
+
+.attributes-row-with-actions > .attributes.card {
+    flex: 2; /* Attributes card takes 2/3 width */
+}
+
+.quick-actions-panel {
+    flex: 1; /* Actions panel takes 1/3 width */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align items to top */
+    align-items: center;
+    padding-top: 10px; 
+}
+
+/* Quick Actions panel h2 removed as per request */
+/*
+.quick-actions-panel h2 {
+    font-family: 'Acme', sans-serif;
+    font-size: 1.2em;
+    color: #5a3e2b;
+    border-bottom: 1px solid #bcaea0;
+    padding-bottom: 3px;
+    margin-top: 0; 
+    margin-bottom: 10px;
+    text-align: center;
+    width: 100%;
+}
+*/
+
+.quick-actions-panel button {
+    width: calc(100% - 20px); 
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    padding: 10px 5px;
+    font-size: 0.9em;
+}
+.quick-actions-panel button:last-child {
+    margin-bottom: 0;
+}
+
+
 .combat-gear-columns {
     display: grid;
     grid-template-columns: 1fr; 
@@ -1083,6 +1129,11 @@ select optgroup {
     font-family: 'Open Sans', sans-serif; 
     font-size: 0.9em;
 }
+.dice-pool-calculation .inline-field-group select,
+.dice-pool-calculation .inline-field-group input[type="number"] {
+    margin-left: 5px; /* Space between label and control */
+}
+
 
 .dice-results-container {
     margin-top: 10px;
@@ -1122,6 +1173,67 @@ select optgroup {
     margin: 5px 0;
     font-size: 0.9em;
 }
+
+/* Slow/Fast Actions Modal Table */
+.actions-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+.actions-table th, .actions-table td {
+    border: 1px solid #d9c9b5;
+    padding: 6px;
+    text-align: left;
+    vertical-align: middle; /* Changed from top for button alignment */
+}
+.actions-table th {
+    background-color: #f0e8d8;
+    font-family: 'Acme', sans-serif;
+    color: #4a3d32;
+    font-weight: bold;
+}
+.actions-table td {
+     font-family: 'Open Sans', sans-serif;
+}
+.actions-table td:first-child {
+    width: 40%; /* Give more space to action name */
+}
+.actions-table td:last-child {
+    width: 60%; /* Give more space to skill/notes */
+    font-style: italic;
+    color: #5a3e2b;
+}
+
+.actions-table td button.roll-action-skill-button {
+    width: 100%;
+    padding: 4px 8px;
+    font-size: 0.9em; /* Match table font size */
+    text-align: center;
+    box-sizing: border-box;
+    margin: 0; /* Remove default button margins */
+}
+
+
+/* Radio button styling for modals */
+.inline-radio {
+    width: auto !important;
+    margin-right: 3px;
+    vertical-align: middle;
+}
+.inline-label-radio {
+    font-family: 'Open Sans', sans-serif !important;
+    font-weight: normal !important;
+    margin-right: 10px;
+    font-size: 0.9em;
+    cursor: pointer;
+    display: inline-block !important;
+}
+#fearTestAttributeRadioGroup {
+    display: flex;
+    align-items: center;
+}
+
 
 
 /* Medium screens - typically 2-column for main content */

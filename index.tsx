@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -639,6 +640,40 @@ const XP_QUESTIONS: string[] = [
     "(GM) Did you do something else that significantly drove the story forward or contributed to the fun of the group?"
 ];
 
+interface ActionListItem { name: string; skill: string; }
+
+const SLOW_ACTIONS_LIST: ActionListItem[] = [
+    { name: "Attack with melee weapon", skill: "Close Combat" },
+    { name: "Attack with ranged weapon", skill: "Ranged Combat" },
+    { name: "Unarmed attack", skill: "Force" },
+    { name: "Wrestle, push, grapple", skill: "Force" },
+    { name: "Flee", skill: "Agility" },
+    { name: "Persuade", skill: "Manipulation" },
+    { name: "Lure enemy to a certain place", skill: "Agility" },
+    { name: "Perform ritual (often takes several rounds)", skill: "—" },
+    { name: "Survey the situation", skill: "Vigilance" },
+    { name: "Treat injuries", skill: "Medicine" },
+    { name: "Climb a wall", skill: "Agility" }
+];
+
+const FAST_ACTIONS_LIST: ActionListItem[] = [
+    { name: "Draw weapon/Swap weapon", skill: "—" },
+    { name: "Stand up", skill: "—" },
+    { name: "Dodge (reaction)", skill: "Agility" },
+    { name: "Parry (reaction)", skill: "Close Combat/Force" },
+    { name: "Break free (reaction)", skill: "Force" },
+    { name: "Hold (reaction)", skill: "Force" },
+    { name: "Chase (reaction)", skill: "Agility" },
+    { name: "Resist magic (reaction)", skill: "Depends on the magic" },
+    { name: "Shout more than a few words", skill: "—" },
+    { name: "Turn around", skill: "—" },
+    { name: "Close a door", skill: "—" },
+    { name: "Put out a candle", skill: "—" },
+    { name: "Move within the zone", skill: "—" },
+    { name: "Move into the next zone", skill: "—" },
+    { name: "Take cover", skill: "—" }
+];
+
 
 // --- ID GENERATION & MANAGEMENT ---
 let noteIdCounter = 0;
@@ -773,6 +808,8 @@ function getModifierForStatFromEffects(statName: string, isAttributeRoll: boolea
             if (affectedItemNameInEffect === primaryStatUpper) {
                 totalEffectModifier += currentModValue;
             } else if (!isAttributeRoll && parentAttributeUpper && affectedItemNameInEffect === parentAttributeUpper) {
+                // This part applies attribute debuffs (like "PHYSIQUE -1") to skills under that attribute.
+                // Ensure we're not applying it if the skill itself was already matched directly.
                 totalEffectModifier += currentModValue;
             }
         }
@@ -831,11 +868,35 @@ function getDefaultCharacter(): Character {
     };
 }
 
+// --- DATA MIGRATION HELPERS (for load/import) ---
+const migrateListIds = <T extends {id: string}>(items: any[] | undefined, idPrefix: 'Note' | 'Relationship' | 'WeaponInst' | 'EquipmentInst' | 'InsightDefectInst', defaultProps: Partial<T> = {}): T[] => {
+    if (!Array.isArray(items)) return [];
+    return items.map((item: any) => ({
+        ...defaultProps,
+        ...item,
+        id: (item && typeof item.id === 'string' && isNewIdFormat(item.id)) ? item.id : getNextIdForType(idPrefix),
+        instanceId: idPrefix === 'WeaponInst' || idPrefix === 'EquipmentInst' ? ((item && typeof item.instanceId === 'string' && isNewIdFormat(item.instanceId)) ? item.instanceId : getNextIdForType(idPrefix)) : undefined
+    }));
+};
+
+const migrateWeaponEquipmentIds = <T extends {instanceId: string, id: string}>(items: any[] | undefined, idPrefix: 'WeaponInst' | 'EquipmentInst', definitionList: any[]): T[] => {
+    if (!Array.isArray(items)) return [];
+    return items.map((item: any) => {
+        const definition = definitionList.find(def => def.id === item.id); 
+        return {
+            ...(definition || {}), 
+            ...item, 
+            instanceId: (item && typeof item.instanceId === 'string' && isNewIdFormat(item.instanceId)) ? item.instanceId : getNextIdForType(idPrefix),
+        } as T;
+    });
+};
+
+
 // --- INITIALIZATION ---
 function init() {
     const rawData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    initializeAllIdCounters(rawData ? JSON.parse(rawData) : null);
-    character = loadCharacterFromLocalStorage() || getDefaultCharacter();
+    initializeAllIdCounters(rawData ? JSON.parse(rawData) : null); // Initialize counters from whatever is in storage (or null)
+    character = loadCharacterFromLocalStorage() || getDefaultCharacter(); // Then load/default the character
     
     populateDropdowns();
     renderAttributes();
@@ -1680,7 +1741,7 @@ function updateSheetDisplay() {
                  if (el instanceof HTMLInputElement && id !== 'characterNameInput' && id !== 'actualCapital' && id !== 'currentCapitalValue' && id !== 'currentResourcesValue') el.readOnly = readOnly; 
             }
             else el[property as 'textContent'] = value === null ? '' : String(value);
-        } else if (id !== 'notes' && id !== 'characterNameInput' && id !== 'characterNameDisplay' && id !== 'actualCapital' && id !== 'currentCapitalValue' && id !== 'currentResourcesValue' && id !== 'resourceLivingStandard' && id !== 'resourceBonusDisplay' && id !== 'resourceCapitalDisplay' ) { 
+        } else if (id !== 'notes' && id !== 'characterNameInput' && id !== 'characterNameDisplay' && id !== 'actualCapital' && id !== 'currentCapitalValue' && id !== 'currentResourcesValue' && id !== 'resourceLivingStandard' && id !== 'resourceBonusDisplay' && id !== 'resourceCapitalDisplay' && !id.startsWith('fearTestAttr') && !id.startsWith('fearTestLogicValueDisplay') && !id.startsWith('fearTestEmpathyValueDisplay') ) { 
              console.warn(`Element with ID '${id}' not found during updateSheetDisplay.`);
         }
     };
@@ -1735,28 +1796,8 @@ function loadCharacterFromLocalStorage(): Character | null {
             const parsedData = JSON.parse(rawDataString);
             const defaultChar = getDefaultCharacter();
 
-            const migrateListIds = <T extends {id: string}>(items: any[] | undefined, idPrefix: 'Note' | 'Relationship' | 'WeaponInst' | 'EquipmentInst' | 'InsightDefectInst', defaultProps: Partial<T> = {}): T[] => {
-                if (!Array.isArray(items)) return [];
-                return items.map((item: any) => ({
-                    ...defaultProps,
-                    ...item,
-                    id: (item && typeof item.id === 'string' && isNewIdFormat(item.id)) ? item.id : getNextIdForType(idPrefix),
-                    instanceId: idPrefix === 'WeaponInst' || idPrefix === 'EquipmentInst' ? ((item && typeof item.instanceId === 'string' && isNewIdFormat(item.instanceId)) ? item.instanceId : getNextIdForType(idPrefix)) : undefined
-                }));
-            };
-            
-             const migrateWeaponEquipmentIds = <T extends {instanceId: string, id: string}>(items: any[] | undefined, idPrefix: 'WeaponInst' | 'EquipmentInst', definitionList: any[]): T[] => {
-                if (!Array.isArray(items)) return [];
-                return items.map((item: any) => {
-                    const definition = definitionList.find(def => def.id === item.id); 
-                    return {
-                        ...(definition || {}), 
-                        ...item, 
-                        instanceId: (item && typeof item.instanceId === 'string' && isNewIdFormat(item.instanceId)) ? item.instanceId : getNextIdForType(idPrefix),
-                    } as T;
-                });
-            };
-
+            // Initialize ID counters based on the loaded data *before* migrations that might generate new IDs
+            // initializeAllIdCounters(parsedData); // This was moved to init() and importCharacter()
 
             const finalNotes = migrateListIds<NoteItem>(parsedData.notes, 'Note', { title: "Untitled Note", content: "", isLocked: true });
             const finalRelationships = migrateListIds<RelationshipItem>(parsedData.relationships, 'Relationship', { pcName: "", type: "" });
@@ -1866,7 +1907,7 @@ function saveRelationship() {
     if (type === CUSTOM_RELATIONSHIP_TYPE_VALUE) {
         type = relationshipTypeCustomInput.value.trim();
         if (!type) {
-            console.error("Please describe the custom relationship type.");
+            alert("Please describe the custom relationship type."); // User-friendly alert
             const customInput = getEl<HTMLInputElement>('relationshipTypeCustom');
             if (customInput) {
                 customInput.style.borderColor = 'red';
@@ -1877,7 +1918,7 @@ function saveRelationship() {
     }
     
     if (!pcName) { 
-        console.error("Player Character Name is required."); 
+        alert("Player Character Name is required.");  // User-friendly alert
         const pcNameInput = getEl<HTMLInputElement>('relationshipPCName');
         if (pcNameInput) {
             pcNameInput.style.borderColor = 'red';
@@ -1932,6 +1973,9 @@ const equipmentSelectionModal = getEl<HTMLDivElement>('equipmentSelectionModal')
 const gainXpModal = getEl<HTMLDivElement>('gainXpModal');
 const diceRollModal = getEl<HTMLDivElement>('diceRollModal');
 const resourceRollResultModal = getEl<HTMLDivElement>('resourceRollResultModal');
+const slowActionsModal = getEl<HTMLDivElement>('slowActionsModal');
+const fastActionsModal = getEl<HTMLDivElement>('fastActionsModal');
+const fearTestModal = getEl<HTMLDivElement>('fearTestModal');
 
 
 // --- Generic Confirmation Modal ---
@@ -2285,7 +2329,7 @@ async function sendRollToDiscord() {
     }
 }
 
-async function sendSimpleRollToDiscord(rollName: string, details: string, results: number[], successes: number) {
+async function sendSimpleRollToDiscord(rollName: string, details: string, results: number[], successes: number, additionalInfo?: string) {
     const webhookUrl = character.discordWebhookUrl;
     const characterDisplayName = character.name || 'Character';
 
@@ -2295,6 +2339,9 @@ async function sendSimpleRollToDiscord(rollName: string, details: string, result
         message += `Results: \`[ ${results.join(', ')} ]\`\n`;
     }
     message += `**Successes: ${successes}**`;
+    if (additionalInfo) {
+        message += `\n${additionalInfo}`;
+    }
 
     if (!webhookUrl) {
         console.log("Discord webhook URL not set. Logging locally.");
@@ -2306,6 +2353,9 @@ async function sendSimpleRollToDiscord(rollName: string, details: string, result
             localLogMessage += `Results: [${results.join(', ')}]. `;
         }
         localLogMessage += `Successes: ${successes}.`;
+        if (additionalInfo) {
+            localLogMessage += ` ${additionalInfo}.`;
+        }
         p.textContent = localLogMessage;
 
         if (rollLogDisplay.firstChild) {
@@ -2412,6 +2462,298 @@ function handlePushRoll() {
     sendRollToDiscord();
 }
 
+// --- Slow/Fast Actions Modals ---
+function openActionsModal(modalElement: HTMLDivElement | null, tableBodyId: string, actionsList: ActionListItem[], title: string) {
+    if (!modalElement) return;
+    const tableBody = getEl<HTMLTableSectionElement>(tableBodyId);
+    tableBody.innerHTML = ''; // Clear previous content
+    
+    actionsList.forEach(action => {
+        const row = tableBody.insertRow();
+        const nameCell = row.insertCell();
+        nameCell.textContent = action.name;
+        const skillCell = row.insertCell();
+
+        const skillDef = SKILLS_LIST.find(s => s.name === action.skill);
+
+        if (skillDef) {
+            const button = document.createElement('button');
+            button.textContent = action.skill;
+            button.classList.add('roll-button', 'roll-action-skill-button'); // Add a specific class for styling if needed
+            button.addEventListener('click', () => {
+                openDiceRollModal('skill', action.skill, skillDef.attribute);
+                closeModal(modalElement); // Close the current actions modal
+            });
+            skillCell.appendChild(button);
+        } else {
+            skillCell.textContent = action.skill; // If not a rollable skill, just display text
+        }
+    });
+
+    const modalTitle = modalElement.querySelector('h3');
+    if(modalTitle) modalTitle.textContent = title;
+    openModal(modalElement);
+}
+
+
+function openSlowActionsModal() {
+    openActionsModal(slowActionsModal, 'slowActionsTable', SLOW_ACTIONS_LIST, 'Slow Actions (p. 60)');
+}
+function closeSlowActionsModal() { closeModal(slowActionsModal); }
+
+function openFastActionsModal() {
+    openActionsModal(fastActionsModal, 'fastActionsTable', FAST_ACTIONS_LIST, 'Fast Actions (p. 60)');
+}
+function closeFastActionsModal() { closeModal(fastActionsModal); }
+
+
+// --- Fear Test Modal ---
+interface FearTestDetails {
+    selectedAttribute: 'Logic' | 'Empathy' | '';
+    attributeValue: number;
+    conditionMod: number;
+    braveTalentBonus: number;
+    playersPresentBonus: number;
+    otherDice: number;
+    targetSuccesses: number | null;
+    finalPool: number;
+    results: number[];
+    successes: number;
+    roundsTerrified: number;
+}
+let currentFearTestDetails: FearTestDetails | null = null;
+
+function getDefaultFearTestDetails(): FearTestDetails {
+    return {
+        selectedAttribute: '',
+        attributeValue: 0,
+        conditionMod: 0,
+        braveTalentBonus: 0,
+        playersPresentBonus: 0,
+        otherDice: 0,
+        targetSuccesses: null,
+        finalPool: 0,
+        results: [],
+        successes: 0,
+        roundsTerrified: 0,
+    };
+}
+
+function updateFearTestModalDisplays() {
+    if (!currentFearTestDetails || !character) return;
+
+    // Update Logic and Empathy display values next to radio buttons
+    getEl<HTMLSpanElement>('fearTestLogicValueDisplay').textContent = (character.attributes.Logic || 0).toString();
+    getEl<HTMLSpanElement>('fearTestEmpathyValueDisplay').textContent = (character.attributes.Empathy || 0).toString();
+
+    // 1. Determine selected attribute and its value for calculation
+    const logicRadio = getEl<HTMLInputElement>('fearTestAttrLogic');
+    const empathyRadio = getEl<HTMLInputElement>('fearTestAttrEmpathy');
+    
+    if (logicRadio.checked) {
+        currentFearTestDetails.selectedAttribute = 'Logic';
+    } else if (empathyRadio.checked) {
+        currentFearTestDetails.selectedAttribute = 'Empathy';
+    } else {
+        currentFearTestDetails.selectedAttribute = '';
+    }
+
+    if (currentFearTestDetails.selectedAttribute) {
+        currentFearTestDetails.attributeValue = character.attributes[currentFearTestDetails.selectedAttribute] || 0;
+    } else {
+        currentFearTestDetails.attributeValue = 0;
+    }
+
+    // 2. Condition Modifier
+    let condMod = 0;
+    CONDITIONS_LIST.forEach(cond => {
+        if (character.conditions[cond.id] && cond.type === 'Mental') {
+            condMod--;
+        }
+    });
+     // Add modifiers from insights/defects specifically mentioning "Fear +/-X"
+    character.insightsAndDefects.forEach(item => {
+        const effectLower = item.effect.toLowerCase();
+        const fearMatch = effectLower.match(/fear\s*([+\-−])\s*(\d+)/);
+        if (fearMatch) {
+            const sign = fearMatch[1];
+            const value = parseInt(fearMatch[2], 10);
+            condMod += (sign === '-' || sign === '−' ? -value : value);
+        }
+    });
+    currentFearTestDetails.conditionMod = condMod;
+    getEl<HTMLSpanElement>('fearTestConditionModDisplay').textContent = condMod.toString();
+
+    // 3. Brave Talent Bonus
+    currentFearTestDetails.braveTalentBonus = character.talents.some(tId => ALL_TALENTS_LIST.find(t => t.id === tId)?.name === "Brave") ? 1 : 0;
+    getEl<HTMLSpanElement>('fearTestBraveTalentBonusDisplay').textContent = `+${currentFearTestDetails.braveTalentBonus}`;
+
+
+    // 4. Players Present Bonus
+    currentFearTestDetails.playersPresentBonus = parseInt(getEl<HTMLInputElement>('fearTestPlayersPresentInput').value, 10) || 0;
+
+    // 5. Other Dice
+    currentFearTestDetails.otherDice = parseInt(getEl<HTMLInputElement>('fearTestOtherDiceInput').value, 10) || 0;
+    
+    // 6. Target Successes
+    const targetRadios = document.querySelectorAll<HTMLInputElement>('input[name="fearTestTargetSuccesses"]');
+    let selectedTargetValue: string | null = null;
+    targetRadios.forEach(radio => {
+        if (radio.checked) {
+            selectedTargetValue = radio.value;
+        }
+    });
+    if (selectedTargetValue === "" || selectedTargetValue === null) {
+        currentFearTestDetails.targetSuccesses = null;
+    } else {
+        const parsedValue = parseInt(selectedTargetValue, 10);
+        currentFearTestDetails.targetSuccesses = isNaN(parsedValue) ? null : parsedValue;
+    }
+
+
+    // Final Pool
+    currentFearTestDetails.finalPool = Math.max(0,
+        currentFearTestDetails.attributeValue +
+        currentFearTestDetails.conditionMod +
+        currentFearTestDetails.braveTalentBonus +
+        currentFearTestDetails.playersPresentBonus +
+        currentFearTestDetails.otherDice
+    );
+    getEl<HTMLSpanElement>('fearTestFinalPoolDisplay').textContent = currentFearTestDetails.finalPool.toString();
+}
+
+
+function openFearTestModal() {
+    currentFearTestDetails = getDefaultFearTestDetails();
+    
+    getEl<HTMLInputElement>('fearTestAttrLogic').checked = false;
+    getEl<HTMLInputElement>('fearTestAttrEmpathy').checked = false;
+    getEl<HTMLInputElement>('fearTestPlayersPresentInput').value = '0';
+    getEl<HTMLInputElement>('fearTestOtherDiceInput').value = '0';
+    
+    const fearTargetNoneRadio = getEl<HTMLInputElement>('fearTargetNone');
+    if (fearTargetNoneRadio) fearTargetNoneRadio.checked = true;
+
+
+    getEl<HTMLSpanElement>('fearTestRollResultsDisplay').textContent = '';
+    getEl<HTMLSpanElement>('fearTestSuccessesDisplay').textContent = '0';
+    getEl<HTMLSpanElement>('fearTestRoundsTerrifiedDisplay').textContent = '0';
+    getEl<HTMLParagraphElement>('fearTestRoundsTerrifiedLine').style.display = 'none';
+    
+    updateFearTestModalDisplays();
+    openModal(fearTestModal);
+}
+
+function closeFearTestModal() {
+    closeModal(fearTestModal);
+    currentFearTestDetails = null;
+}
+
+async function handleRollFearTest() {
+    if (!currentFearTestDetails || !character) return;
+    
+    updateFearTestModalDisplays(); // Ensure all latest inputs are captured, including radio button state
+
+    if (!currentFearTestDetails.selectedAttribute) {
+        alert("Please select an attribute (Logic or Empathy) for the Fear Test.");
+        const logicRadio = getEl<HTMLInputElement>('fearTestAttrLogic');
+        if (logicRadio) logicRadio.focus();
+        return;
+    }
+    
+
+    if (currentFearTestDetails.finalPool <= 0) {
+        currentFearTestDetails.results = [];
+        currentFearTestDetails.successes = 0;
+        currentFearTestDetails.roundsTerrified = 0;
+        getEl<HTMLSpanElement>('fearTestRollResultsDisplay').textContent = "Cannot roll 0 or fewer dice.";
+        getEl<HTMLSpanElement>('fearTestSuccessesDisplay').textContent = '0';
+        getEl<HTMLParagraphElement>('fearTestRoundsTerrifiedLine').style.display = 'none';
+        await sendFearRollToDiscord();
+        return;
+    }
+
+    currentFearTestDetails.results = [];
+    currentFearTestDetails.successes = 0;
+    for (let i = 0; i < currentFearTestDetails.finalPool; i++) {
+        const roll = Math.floor(Math.random() * 6) + 1;
+        currentFearTestDetails.results.push(roll);
+        if (roll === 6) currentFearTestDetails.successes++;
+    }
+
+    currentFearTestDetails.roundsTerrified = 0;
+    if (currentFearTestDetails.targetSuccesses !== null && currentFearTestDetails.successes < currentFearTestDetails.targetSuccesses) {
+        currentFearTestDetails.roundsTerrified = Math.floor(Math.random() * 6) + 1;
+    }
+
+    getEl<HTMLSpanElement>('fearTestRollResultsDisplay').textContent = currentFearTestDetails.results.join(', ');
+    getEl<HTMLSpanElement>('fearTestSuccessesDisplay').textContent = currentFearTestDetails.successes.toString();
+    if (currentFearTestDetails.roundsTerrified > 0) {
+        getEl<HTMLSpanElement>('fearTestRoundsTerrifiedDisplay').textContent = currentFearTestDetails.roundsTerrified.toString();
+        getEl<HTMLParagraphElement>('fearTestRoundsTerrifiedLine').style.display = 'block';
+    } else {
+        getEl<HTMLParagraphElement>('fearTestRoundsTerrifiedLine').style.display = 'none';
+    }
+    await sendFearRollToDiscord();
+}
+
+async function sendFearRollToDiscord() {
+    if (!currentFearTestDetails) return;
+
+    const characterDisplayName = character.name || 'Character';
+    let details = `Attribute (${currentFearTestDetails.selectedAttribute}): ${currentFearTestDetails.attributeValue}, ` +
+                  `Cond. Mod: ${currentFearTestDetails.conditionMod}, Brave: ${currentFearTestDetails.braveTalentBonus}, ` +
+                  `Players Present: ${currentFearTestDetails.playersPresentBonus}, Other: ${currentFearTestDetails.otherDice}.`;
+    if (currentFearTestDetails.targetSuccesses !== null) {
+        details += ` Target: ${currentFearTestDetails.targetSuccesses}.`;
+    }
+    
+    let additionalInfo = "";
+    if (currentFearTestDetails.roundsTerrified > 0) {
+        additionalInfo = `**Rounds Terrified: ${currentFearTestDetails.roundsTerrified}** (1D6)`;
+    }
+
+    await sendSimpleRollToDiscord(
+        "Fear Test",
+        details + `\n**Final Dice Pool: ${currentFearTestDetails.finalPool}**`,
+        currentFearTestDetails.results,
+        currentFearTestDetails.successes,
+        additionalInfo
+    );
+}
+
+// --- CLEAR CHARACTER SHEET ---
+function handleClearCharacterSheet() {
+    openConfirmationModal(
+        "Confirm Clear Sheet",
+        "Are you sure you want to clear the entire character sheet? All data will be lost. This action cannot be undone.",
+        () => {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            initializeAllIdCounters(null); // Reset ID counters
+            character = getDefaultCharacter();
+            
+            // Fully re-render the sheet
+            populateDropdowns(); 
+            renderAttributes();
+            renderSkills(); 
+            renderConditions();
+            renderRelationships();
+            renderArmor();
+            renderWeapons();
+            renderEquipment();
+            renderInsightsAndDefects();
+            renderNotes(); 
+            
+            updateSheetDisplay(); 
+            updateCalculations(); 
+            updateSuggestionDropdowns(); 
+            
+            saveCharacterToLocalStorage(); 
+            console.log("Character sheet cleared.");
+        }
+    );
+}
+
 
 // --- EVENT LISTENERS ---
 function setupEventListeners() {
@@ -2429,6 +2771,7 @@ function setupEventListeners() {
     addListener('exportCharacterBtn', 'click', exportCharacter);
     const importFileEl = getEl<HTMLInputElement>('importFile'); if (importFileEl) importFileEl.addEventListener('change', importCharacter);
     addListener('openDiscordSettingsBtn', 'click', openDiscordSettingsModal);
+    addListener('clearCharacterSheetBtn', 'click', handleClearCharacterSheet);
     
     const characterNameDisplay = getEl<HTMLSpanElement>('characterNameDisplay');
     characterNameDisplay.addEventListener('click', switchToEditCharacterName);
@@ -2464,7 +2807,13 @@ function setupEventListeners() {
         }
     });
     
-    const openTalentModalBtn = getEl('openAddTalentModalBtn'), closeTalentModalBtn = getEl('closeTalentModalBtn'), addTalentModal = getEl('addTalentModal'), modalTalentSelect = getEl<HTMLSelectElement>('modalTalentSelect'), modalTalentDesc = getEl('modalTalentDescription'), confirmAddTalentBtn = getEl('confirmAddTalentBtn');
+    const openTalentModalBtn = getEl('openAddTalentModalBtn');
+    const closeTalentModalBtn = getEl('closeTalentModalBtn');
+    const addTalentModal = getEl<HTMLDivElement>('addTalentModal');
+    const modalTalentSelect = getEl<HTMLSelectElement>('modalTalentSelect');
+    const modalTalentDesc = getEl<HTMLDivElement>('modalTalentDescription');
+    const confirmAddTalentBtn = getEl('confirmAddTalentBtn');
+
     if (openTalentModalBtn && addTalentModal && modalTalentSelect && modalTalentDesc) {
         openTalentModalBtn.addEventListener('click', () => {
             addTalentModal.style.display = 'block'; modalTalentSelect.innerHTML = '<option value="" title="">-- Select a Talent --</option>';
@@ -2473,7 +2822,7 @@ function setupEventListeners() {
             modalTalentDesc.textContent = 'Description will appear here.'; updateSelectTooltip(modalTalentSelect); 
         });
     }
-    if (closeTalentModalBtn && addTalentModal) { closeTalentModalBtn.addEventListener('click', () => addTalentModal.style.display = 'none'); window.addEventListener('click', (e) => { if (e.target === addTalentModal) addTalentModal.style.display = 'none'; }); }
+    if (closeTalentModalBtn && addTalentModal) { closeTalentModalBtn.addEventListener('click', () => closeModal(addTalentModal)); }
     if (modalTalentSelect && modalTalentDesc) modalTalentSelect.addEventListener('change', () => { const tId=modalTalentSelect.value; const tDef=ALL_TALENTS_LIST.find(t=>t.id===tId); modalTalentDesc.textContent=tDef?tDef.description:'Description...'; updateSelectTooltip(modalTalentSelect); });
     if (confirmAddTalentBtn && modalTalentSelect && addTalentModal) {
         confirmAddTalentBtn.addEventListener('click', () => { 
@@ -2484,7 +2833,7 @@ function setupEventListeners() {
                 saveCharacterToLocalStorage();
                 console.log(`Talent "${ALL_TALENTS_LIST.find(t=>t.id === tId)?.name}" added.`);
             } 
-            addTalentModal.style.display='none'; 
+            closeModal(addTalentModal); 
         });
     }
 
@@ -2555,12 +2904,15 @@ function setupEventListeners() {
 
     addListener('spendXpBtn', 'click', handleSpendFiveXp); 
     
-    [armorSelectionModal, weaponSelectionModal, equipmentSelectionModal, gainXpModal, confirmationModal, diceRollModal, resourceRollResultModal].forEach(m => { 
+    [armorSelectionModal, weaponSelectionModal, equipmentSelectionModal, gainXpModal, confirmationModal, diceRollModal, resourceRollResultModal, slowActionsModal, fastActionsModal, fearTestModal].forEach(m => { 
         if(m) window.addEventListener('click', (e) => { 
             if (e.target === m) {
                 if (m === confirmationModal) closeConfirmationModal();
                 else if (m === diceRollModal) closeDiceRollModal();
                 else if (m === resourceRollResultModal) closeResourceRollResultModal();
+                else if (m === slowActionsModal) closeSlowActionsModal();
+                else if (m === fastActionsModal) closeFastActionsModal();
+                else if (m === fearTestModal) closeFearTestModal();
                 else closeModal(m);
             }
         }); 
@@ -2609,105 +2961,131 @@ function setupEventListeners() {
         });
         window.addEventListener('click', (event) => {
             if (actionsDropdownContent.classList.contains('show')) {
-                if (!actionsMenuBtn.contains(event.target as Node) && !actionsDropdownContent.contains(event.target as Node)) {
+                 if (!actionsMenuBtn.contains(event.target as Node) && !actionsDropdownContent.contains(event.target as Node)) {
                     actionsDropdownContent.classList.remove('show');
                 }
             }
         });
     }
-
-    addListener('closeDiceRollModalBtn', 'click', closeDiceRollModal);
-    addListener('closeRollModalSecondaryBtn', 'click', closeDiceRollModal);
-    addListener('rollDiceInModalBtn', 'click', handleRollDiceInModal);
-    addListener('pushRollBtn', 'click', handlePushRoll);
-    const gmModInput = getEl<HTMLInputElement>('gmModifierInput');
-    if (gmModInput) gmModInput.addEventListener('input', updateDiceRollModalFinalPool);
-
-    addListener('rollResourcesBtn', 'click', handleRollResources);
-    addListener('closeResourceRollResultModalBtn', 'click', closeResourceRollResultModal);
+    
     addListener('confirmResourceRollBtn', 'click', () => {
         if (currentResourceRollConfirmCallback) {
             currentResourceRollConfirmCallback();
         }
     });
+    addListener('closeResourceRollResultModalBtn', 'click', closeResourceRollResultModal);
+    getEl<HTMLButtonElement>('rollResourcesBtn').addEventListener('click', handleRollResources);
+
+    // Dice Roll Modal Buttons
+    addListener('rollDiceInModalBtn', 'click', handleRollDiceInModal);
+    addListener('pushRollBtn', 'click', handlePushRoll);
+    addListener('closeDiceRollModalBtn', 'click', closeDiceRollModal);
+    addListener('closeRollModalSecondaryBtn', 'click', closeDiceRollModal);
+    addListener('gmModifierInput', 'input', () => updateDiceRollModalFinalPool()); 
+
+    // Quick Actions Panel Buttons & Modals
+    addListener('fearBtn', 'click', openFearTestModal);
+    addListener('closeFearTestModalBtn', 'click', closeFearTestModal);
+    addListener('closeFearTestModalSecondaryBtn', 'click', closeFearTestModal);
+    addListener('rollFearTestBtn', 'click', handleRollFearTest);
+
+    ['fearTestAttrLogic', 'fearTestAttrEmpathy', 'fearTestPlayersPresentInput', 'fearTestOtherDiceInput'].forEach(id => {
+        const el = getEl<HTMLElement>(id);
+        // Use 'change' for radio buttons, 'input' for text/number fields
+        const eventType = (el && el.getAttribute('type') === 'radio') ? 'change' : 'input';
+        if(el) el.addEventListener(eventType, updateFearTestModalDisplays);
+    });
+    document.querySelectorAll('input[name="fearTestTargetSuccesses"]').forEach(radio => {
+        radio.addEventListener('change', updateFearTestModalDisplays);
+    });
+
+
+    addListener('slowActionsBtn', 'click', openSlowActionsModal);
+    addListener('closeSlowActionsModalBtn', 'click', closeSlowActionsModal);
+    addListener('closeSlowActionsModalSecondaryBtn', 'click', closeSlowActionsModal);
+    
+    addListener('fastActionsBtn', 'click', openFastActionsModal);
+    addListener('closeFastActionsModalBtn', 'click', closeFastActionsModal);
+    addListener('closeFastActionsModalSecondaryBtn', 'click', closeFastActionsModal);
+    
 }
 
-// --- IMPORT/EXPORT JSON ---
+// --- EXPORT/IMPORT ---
 function exportCharacter() {
-    const jsonData = JSON.stringify(character, null, 2); const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob); const a = document.createElement('a');
-    a.href = url; a.download = `${toSafeId(character.name) || 'vaesen_character'}.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+    const filename = `vaesen_char_${character.name.replace(/\s+/g, '_') || 'unnamed'}.json`;
+    const dataStr = JSON.stringify(character, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri); linkElement.setAttribute('download', filename);
+    linkElement.click();
 }
+
 function importCharacter(event: Event) {
-    const fileInput = event.target as HTMLInputElement;
-    if (fileInput.files && fileInput.files[0]) {
-        const file = fileInput.files[0]; const reader = new FileReader();
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+        const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const importedText = e.target?.result as string; if (!importedText) { console.error("File is empty."); return; } 
-                const rawData = JSON.parse(importedText); 
-                initializeAllIdCounters(rawData); 
-                // character = loadCharacterFromLocalStorage() || getDefaultCharacter(); // This line re-reads potentially old data.
-                                                                                // Instead, directly process rawData after ID init.
-                
-                if (typeof rawData === 'object' && rawData !== null && 'name' in rawData) {
-                     const defaultChar = getDefaultCharacter(); 
+                const importedRawData = e.target?.result as string;
+                const importedParsedData = JSON.parse(importedRawData);
 
-                     const migrateListIds = <T extends {id: string}>(items: any[] | undefined, idPrefix: 'Note' | 'Relationship' | 'WeaponInst' | 'EquipmentInst' | 'InsightDefectInst', defaultProps: Partial<T> = {}): T[] => {
-                        if (!Array.isArray(items)) return [];
-                        return items.map((item: any) => ({
-                            ...defaultProps,
-                            ...item,
-                            id: (item && typeof item.id === 'string' && isNewIdFormat(item.id)) ? item.id : getNextIdForType(idPrefix),
-                            instanceId: idPrefix === 'WeaponInst' || idPrefix === 'EquipmentInst' ? ((item && typeof item.instanceId === 'string' && isNewIdFormat(item.instanceId)) ? item.instanceId : getNextIdForType(idPrefix as 'WeaponInst' | 'EquipmentInst')) : undefined 
-                        }));
-                    };
-                     const migrateWeaponEquipmentIds = <T extends {instanceId: string, id: string}>(items: any[] | undefined, idPrefix: 'WeaponInst' | 'EquipmentInst', definitionList: any[]): T[] => {
-                        if (!Array.isArray(items)) return [];
-                        return items.map((item: any) => {
-                            const definition = definitionList.find(def => def.id === item.id);
-                            return {
-                                ...(definition || {}),
-                                ...item,
-                                instanceId: (item && typeof item.instanceId === 'string' && isNewIdFormat(item.instanceId)) ? item.instanceId : getNextIdForType(idPrefix),
-                            } as T;
-                        });
-                    };
-                    
-                    character = { // Assign to the global character variable
-                        ...defaultChar, ...rawData,
-                         attributes: {...defaultChar.attributes, ...(rawData.attributes || {})}, skills: {...defaultChar.skills, ...(rawData.skills || {})}, conditions: {...defaultChar.conditions, ...(rawData.conditions || {})},
-                         physicalBroken: rawData.physicalBroken !== undefined ? rawData.physicalBroken : false,
-                         mentalBroken: rawData.mentalBroken !== undefined ? rawData.mentalBroken : false,
-                         age: rawData.age !== undefined ? rawData.age : null, mementoUsed: rawData.mementoUsed !== undefined ? rawData.mementoUsed : false, advantageUsed: rawData.advantageUsed !== undefined ? rawData.advantageUsed : false,
-                         experiencePoints: rawData.experiencePoints !== undefined ? rawData.experiencePoints : 0,
-                         currentCapitalValue: rawData.currentCapitalValue !== undefined ? rawData.currentCapitalValue : null,
-                         currentResourcesValue: rawData.currentResourcesValue !== undefined ? rawData.currentResourcesValue : null,
-                         actualCapital: rawData.actualCapital || defaultChar.actualCapital, 
-                         talents: Array.isArray(rawData.talents) ? rawData.talents : [],
-                         armor: rawData.armor || null,
-                         notes: migrateListIds<NoteItem>(rawData.notes, 'Note', { title: "Imported Note", content: "", isLocked: true }),
-                         relationships: migrateListIds<RelationshipItem>(rawData.relationships, 'Relationship', { pcName: "", type: "" }),
-                         weapons: migrateWeaponEquipmentIds<WeaponItem>(rawData.weapons, 'WeaponInst', WEAPON_DEFINITIONS),
-                         equipment: migrateWeaponEquipmentIds<EquipmentItem>(rawData.equipment, 'EquipmentInst', GENERAL_EQUIPMENT_DEFINITIONS),
-                         insightsAndDefects: migrateListIds<InsightDefectItem>(rawData.insightsAndDefects, 'InsightDefectInst', { originalId: "", name: "", effect: "", type: "Defect" }),
-                         resources: (typeof rawData.resources === 'number' && rawData.resources >= 1 && rawData.resources <= 8) ? rawData.resources : defaultChar.resources,
-                    };
-                    updateSheetDisplay(); updateCalculations(); updateSuggestionDropdowns(); saveCharacterToLocalStorage(); 
-                    console.log("Character imported successfully!"); 
-                } else {
-                    console.error("Invalid character file format."); 
-                }
-            } catch (error) { 
-                console.error("Error parsing character file: " + (error as Error).message); 
+                const defaultChar = getDefaultCharacter();
+                
+                // Initialize ID counters based on the incoming data before any potential new ID generation
+                initializeAllIdCounters(importedParsedData);
+
+                // --- Migration logic similar to loadCharacterFromLocalStorage ---
+                const finalNotes = migrateListIds<NoteItem>(importedParsedData.notes, 'Note', { title: "Untitled Note", content: "", isLocked: true });
+                const finalRelationships = migrateListIds<RelationshipItem>(importedParsedData.relationships, 'Relationship', { pcName: "", type: "" });
+                const finalWeapons = migrateWeaponEquipmentIds<WeaponItem>(importedParsedData.weapons, 'WeaponInst', WEAPON_DEFINITIONS);
+                const finalEquipment = migrateWeaponEquipmentIds<EquipmentItem>(importedParsedData.equipment, 'EquipmentInst', GENERAL_EQUIPMENT_DEFINITIONS);
+                const finalInsightsDefects = migrateListIds<InsightDefectItem>(importedParsedData.insightsAndDefects, 'InsightDefectInst', { originalId: "", name: "", effect: "", type: "Defect" });
+
+                // Assign to the global character object, merging deeply and correctly
+                character = {
+                    ...defaultChar, 
+                    ...importedParsedData,
+                    attributes: { ...defaultChar.attributes, ...(importedParsedData.attributes || {}) },
+                    skills: { ...defaultChar.skills, ...(importedParsedData.skills || {}) },
+                    conditions: { ...defaultChar.conditions, ...(importedParsedData.conditions || {}) },
+                    physicalBroken: importedParsedData.physicalBroken !== undefined ? importedParsedData.physicalBroken : false,
+                    mentalBroken: importedParsedData.mentalBroken !== undefined ? importedParsedData.mentalBroken : false,
+                    age: importedParsedData.age !== undefined ? importedParsedData.age : null,
+                    mementoUsed: importedParsedData.mementoUsed !== undefined ? importedParsedData.mementoUsed : false,
+                    advantageUsed: importedParsedData.advantageUsed !== undefined ? importedParsedData.advantageUsed : false,
+                    experiencePoints: importedParsedData.experiencePoints !== undefined ? importedParsedData.experiencePoints : 0,
+                    currentCapitalValue: importedParsedData.currentCapitalValue !== undefined ? importedParsedData.currentCapitalValue : null,
+                    currentResourcesValue: importedParsedData.currentResourcesValue !== undefined ? importedParsedData.currentResourcesValue : null,
+                    actualCapital: importedParsedData.actualCapital || defaultChar.actualCapital, 
+                    talents: Array.isArray(importedParsedData.talents) ? importedParsedData.talents : [],
+                    armor: importedParsedData.armor || null, 
+                    notes: finalNotes,
+                    relationships: finalRelationships,
+                    weapons: finalWeapons,
+                    equipment: finalEquipment,
+                    insightsAndDefects: finalInsightsDefects,
+                    resources: (typeof importedParsedData.resources === 'number' && importedParsedData.resources >= 1 && importedParsedData.resources <= 8) ? importedParsedData.resources : defaultChar.resources,
+                };
+                // End migration logic
+
+                saveCharacterToLocalStorage(); // Save the NEW character data to localStorage
+                
+                // Refresh the entire UI
+                updateSheetDisplay(); 
+                updateCalculations(); 
+                updateSuggestionDropdowns();
+                console.log("Character imported successfully.");
+
+            } catch (err) { 
+                console.error("Error importing character:", err); 
+                alert("Failed to import character. Ensure the file is a valid JSON export from this tool."); 
             }
         };
-        reader.onerror = () => {
-            console.error("Error reading file."); 
-        };
-        reader.readAsText(file); fileInput.value = ''; 
+        reader.readAsText(file);
+        (event.target as HTMLInputElement).value = ''; // Reset file input
     }
 }
 
+
+// --- RUN ---
 document.addEventListener('DOMContentLoaded', init);
