@@ -238,21 +238,21 @@
     /* PAGE 1 */
     .sheet-grid > .char-info { grid-column: 1 / 2 !important; grid-row: 1 / 2 !important; }
     .sheet-grid > .attributes { grid-column: 1 / 2 !important; grid-row: 2 / 3 !important; }
+    .sheet-grid > .relationships { grid-column: 1 / 2 !important; grid-row: 3 / 4 !important; 
+    }
     
     .sheet-grid > .talents { grid-column: 2 / 3 !important; grid-row: 1 / 2 !important; }
-        .sheet-grid > .combat-gear-card { grid-column: 2 / 3 !important; grid-row: 2 / 3 !important; }
+    .sheet-grid > .combat-gear-card { grid-column: 2 / 3 !important; grid-row: 2 / 4 !important; }
 
     /* PAGE 2 */
     .sheet-grid > .skills { 
         page-break-before: always !important;
-        grid-column: 1 / 2 !important; grid-row: 3 / 4 !important; }
+        grid-column: 1 / 3 !important; grid-row: 3 / 4 !important; }
         
-    .sheet-grid > .relationships {
-        grid-column: 2 / 3 !important; grid-row: 3 / 4 !important; 
-    }
+   
 
     .sheet-grid > .insights-defects {
-        grid-column: 2 / 3 !important; grid-row: 4 / 5 !important; 
+        grid-column: 1 / 3 !important; grid-row: 4 / 5 !important; 
     }
     
     .sheet-grid > .notes {
